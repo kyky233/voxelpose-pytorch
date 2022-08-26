@@ -99,6 +99,7 @@ python test/evaluate.py --cfg configs/shelf/prn64_cpn80x80x20.yaml
 python test/evaluate.py --cfg configs/campus/prn64_cpn80x80x20.yaml
 ```
 ### our MVHW datasets
+Because we don't have ground truth yet, so we just use the trained model to predict on our dataset
 
 
 ## Citation
