@@ -8,6 +8,8 @@
 #SBATCH --gres=gpu:2
 #SBATCH -o /mntnfs/med_data4/wangjiong/3dpose_school/voxelpose_dev/slurm_logs/train_%j.out
 #SBATCH -e /mntnfs/med_data4/wangjiong/3dpose_school/voxelpose_dev/slurm_logs/train_%j.out
+#SBATCH --mail-type=ALL  # BEGIN,END,FAIL,ALL
+#SBATCH --mail-user=yandq2020@mail.sustech.edu.cn
 
 # export MASTER_PORT=$((12000 + $RANDOM % 2000))
 set -x
