@@ -83,7 +83,7 @@ LIMBS = [[0, 1],
          [13, 14]]
 
 
-class Panoptic(JointsDataset):
+class MVHW(JointsDataset):
     def __init__(self, cfg, image_set, is_train, transform=None):
         super().__init__(cfg, image_set, is_train, transform)
         self.pixel_std = 200.0
