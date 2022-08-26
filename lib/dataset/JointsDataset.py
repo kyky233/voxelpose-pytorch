@@ -101,7 +101,7 @@ class JointsDataset(Dataset):
 
         height, width, _ = data_numpy.shape
         c = np.array([width / 2.0, height / 2.0])
-        s = get_scale((width, height), self.image_size)
+        s = get_scale((width, height), self.image_size)   # resize image to the given self.image_size
         r = 0
 
         trans = get_affine_transform(c, s, r, self.image_size)
@@ -113,8 +113,8 @@ class JointsDataset(Dataset):
         if self.transform:
             input = self.transform(input)
 
-        for n in range(nposes):
-            for i in range(len(joints[0])):
+        for n in range(nposes):     # each person
+            for i in range(len(joints[0])):     # each joint
                 if joints_vis[n][i, 0] > 0.0:
                     joints[n][i, 0:2] = affine_transform(
                         joints[n][i, 0:2], trans)
@@ -162,6 +162,8 @@ class JointsDataset(Dataset):
             roots_3d = joints_3d_u[:, self.root_id]
         elif isinstance(self.root_id, list):
             roots_3d = np.mean([joints_3d_u[:, j] for j in self.root_id], axis=0)
+        else:
+            raise Exception(f"root_id = {self.root_id}, is neither int or list, please check your input!")
         meta = {
             'image': image_file,
             'num_person': nposes,
