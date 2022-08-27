@@ -36,6 +36,8 @@ def train_3d(config, model, optimizer, loader, epoch, output_dir, writer_dict, d
     end = time.time()
     for i, (inputs, targets_2d, weights_2d, targets_3d, meta, input_heatmap) in enumerate(loader):
         data_time.update(time.time() - end)
+        # clear gradient
+        optimizer.zero_grad()
 
         if 'panoptic' in config.DATASET.TEST_DATASET:
             pred, heatmaps, grid_centers, loss_2d, loss_3d, loss_cord = model(views=inputs, meta=meta,
@@ -57,12 +59,10 @@ def train_3d(config, model, optimizer, loader, epoch, output_dir, writer_dict, d
         losses.update(loss.item())
 
         if loss_cord > 0:
-            optimizer.zero_grad()
             (loss_2d + loss_cord).backward()
             optimizer.step()
 
         if accu_loss_3d > 0 and (i + 1) % accumulation_steps == 0:
-            optimizer.zero_grad()
             accu_loss_3d.backward()
             optimizer.step()
             accu_loss_3d = 0.0
