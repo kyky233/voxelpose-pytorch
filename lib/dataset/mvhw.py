@@ -179,7 +179,7 @@ class MVHW(JointsDataset):
                         pose3d = np.zeros(shape=[self.num_joints, 3])
                         all_poses_3d.append(pose3d)
                         pose3d_vis = pose3d
-                        all_poses_vis.append(pose3d_vis)
+                        all_poses_vis_3d.append(pose3d_vis)
                         pose2d = np.zeros(shape=[pose3d.shape[0], 2])
                         all_poses.append(pose2d)
                         pose2d_vis = pose2d
