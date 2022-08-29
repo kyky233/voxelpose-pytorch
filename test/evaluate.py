@@ -125,7 +125,7 @@ def main():
     save_path = os.path.join(save_dir, config.DATASET.TEST_DATASET+time.strftime("_%Y-%m-%d-%H-%M", time.localtime())+'.pickle')
     with open(save_path, 'wb') as f:
         pickle.dump(preds, f)
-    print()
+    print(f"=> pred results have been saved in {os.path.abspath(save_path)}...")
 
 
 if __name__ == "__main__":
