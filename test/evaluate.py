@@ -7,6 +7,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import pickle
+import time
+
 import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
@@ -43,6 +46,9 @@ def main():
     logger, final_output_dir, tb_log_dir = create_logger(
         config, args.cfg, 'eval_map')
     cfg_name = os.path.basename(args.cfg).split('.')[0]
+
+    logger.info(pprint.pformat(args))
+    logger.info(pprint.pformat(config))
 
     gpus = [int(i) for i in config.GPUS.split(',')]
     print('=> Loading data ..')
@@ -84,17 +90,19 @@ def main():
     preds = []
     with torch.no_grad():
         for i, (inputs, targets_2d, weights_2d, targets_3d, meta, input_heatmap) in enumerate(tqdm(test_loader)):
-            if 'panoptic' in config.DATASET.TEST_DATASET:
+            if 'panoptic' or 'mvhw' in config.DATASET.TEST_DATASET:
                 pred, _, _, _, _, _ = model(views=inputs, meta=meta)
             elif 'campus' in config.DATASET.TEST_DATASET or 'shelf' in config.DATASET.TEST_DATASET:
                 pred, _, _, _, _, _ = model(meta=meta, input_heatmaps=input_heatmap)
+            else:
+                raise Exception(f"use dataset {config.DATASET.TEST_DATASET} for test, which is not declared here...")
 
             pred = pred.detach().cpu().numpy()
             for b in range(pred.shape[0]):
                 preds.append(pred[b])
 
         tb = PrettyTable()
-        if 'panoptic' in config.DATASET.TEST_DATASET:
+        if 'panoptic' or 'mvhw' in config.DATASET.TEST_DATASET:
             mpjpe_threshold = np.arange(25, 155, 25)
             aps, recs, mpjpe, _ = test_dataset.evaluate(preds)
             tb.field_names = ['Threshold/mm'] + [f'{i}' for i in mpjpe_threshold]
@@ -109,6 +117,15 @@ def main():
                 tb.add_row([k] + [f'{i*100:.1f}' for i in v] + [f'{np.mean(v)*100:.1f}'])
             tb.add_row(['Total'] + [f'{i*100:.1f}' for i in actor_pcp] + [f'{avg_pcp*100:.1f}'])
             print(tb)
+
+    # save pred results
+    save_dir = './results'
+    if not os.path.isdir(save_dir):
+        os.mkdir(save_dir)
+    save_path = os.path.join(save_dir, config.DATASET.TEST_DATASET+time.strftime("_%Y-%m-%d-%H-%M", time.localtime())+'.pickle')
+    with open(save_path, 'wb') as f:
+        pickle.dump(preds, f)
+    print()
 
 
 if __name__ == "__main__":
