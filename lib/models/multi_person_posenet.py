@@ -32,7 +32,7 @@ class MultiPersonPoseNet(nn.Module):
         self.dataset_name = cfg.DATASET.TEST_DATASET
 
     def forward(self, views=None, meta=None, targets_2d=None, weights_2d=None, targets_3d=None, input_heatmaps=None):
-        if views is not None:
+        if views is not None:   # only images
             all_heatmaps = []
             for view in views:
                 heatmaps = self.backbone(view)

@@ -220,7 +220,7 @@ def _get_group_item(db, idx):
     return group_rec
 
 
-def preprocess_image(img_path):
+def preprocess_image(img_path, with_vis=False):
     image_size = np.array([960, 512])
     color_rgb = True
 
@@ -242,16 +242,17 @@ def preprocess_image(img_path):
         flags=cv2.INTER_LINEAR)
 
     # show image
-    cv2.imshow("Before", data_numpy)
-    cv2.imshow("After", input)
-    cv2.waitKey(0)
+    if with_vis:
+        cv2.imshow("Before", data_numpy)
+        cv2.imshow("After", input)
+        cv2.waitKey(0)
 
-    cv2.destroyAllWindows()
+        cv2.destroyAllWindows()
 
-    pass
+    return input
 
 
-def show_db_item(db_rec):
+def show_db_item(db_rec, with_preprocess=True):
     """
     db_rec:
         'key': "{}_{}-{}".format(seq, k, _get_img_name(idx).split('.')[0]),
@@ -268,14 +269,17 @@ def show_db_item(db_rec):
 
     fig = plt.figure(figsize=(1, 1))
     ax = fig.add_subplot(1, 1, 1)
-    img = plt.imread(db_rec['image'])
+    if with_preprocess:
+        img = preprocess_image(img_path=db_rec['image'], with_vis=False)
+    else:
+        img = plt.imread(db_rec['image'])
     ax.imshow(img)
 
     plt.show()
     plt.close()
 
 
-def show_db_single_group(db_group_rec):
+def show_db_single_group(db_group_rec, with_preprocess=True):
     """
     db_group_rec:
         'key': "{}_{}-{}".format(seq, k, _get_img_name(idx).split('.')[0]),
@@ -295,14 +299,17 @@ def show_db_single_group(db_group_rec):
     fig = plt.figure(figsize=(1, num_views))
     for i in range(num_views):
         ax = fig.add_subplot(1, num_views, i+1)
-        img = plt.imread(images[i])
+        if with_preprocess:
+            img = preprocess_image(img_path=images[i], with_vis=False)
+        else:
+            img = plt.imread(images[i])
         ax.imshow(img)
 
     plt.show()
     plt.close()
 
 
-def show_db_groups(db, num_groups, group_intervals, idx):
+def show_db_groups(db, num_groups, group_intervals, idx, with_preprocess=True):
     """
     db_group_rec:
         'key': "{}_{}-{}".format(seq, k, _get_img_name(idx).split('.')[0]),
@@ -329,7 +336,10 @@ def show_db_groups(db, num_groups, group_intervals, idx):
     for i in range(num_groups):
         for j in range(num_views):
             ax = fig.add_subplot(num_groups, num_views, i*num_views + j+1)
-            img = plt.imread(images[i][j])
+            if with_preprocess:
+                img = preprocess_image(img_path=images[i][j], with_vis=False)
+            else:
+                img = plt.imread(images[i][j])
             ax.imshow(img)
 
     plt.show()
@@ -342,25 +352,33 @@ def main():
 
     idx = 0
 
-    # show processed image
-    db_rec = copy.deepcopy(db[idx])
-    preprocess_image(img_path=db_rec['image'])
+    vis_item = False
+    vis_single_group = True
+    vis_groups = False
+    with_preprocess = True
 
-    # # show db by idx
+    # # show processed image
     # db_rec = copy.deepcopy(db[idx])
-    # show_db_item(db_rec=db_rec)
-    # print(f"{idx}th rec has been showed!")
+    # preprocess_image(img_path=db_rec['image'], with_vis=True)
 
-    # # show group db by idx
-    # db_group_rec = _get_group_item(db=db, idx=idx)
-    # show_db_single_group(db_group_rec=db_group_rec)
-    # print(f"{idx}th group recs has been showed!")
+    # show db by idx
+    if vis_item:
+        db_rec = copy.deepcopy(db[idx])
+        show_db_item(db_rec=db_rec, with_preprocess=with_preprocess)
+        print(f"{idx}th rec has been showed!")
 
-    # # show several groups db rec
-    # num_groups = 7
-    # group_intervals = 500
-    # show_db_groups(db=db, num_groups=num_groups, group_intervals=group_intervals, idx=idx)
-    # print(f"{idx}th~{idx+num_groups}th group recs have been showed!")
+    # show group db by idx
+    if vis_single_group:
+        db_group_rec = _get_group_item(db=db, idx=idx)
+        show_db_single_group(db_group_rec=db_group_rec, with_preprocess=with_preprocess)
+        print(f"{idx}th group recs has been showed!")
+
+    # show several groups db rec
+    if vis_groups:
+        num_groups = 7
+        group_intervals = 500
+        show_db_groups(db=db, num_groups=num_groups, group_intervals=group_intervals, idx=idx, with_preprocess=with_preprocess)
+        print(f"{idx}th~{idx+num_groups}th group recs have been showed!")
 
     print(f"this is the end!")
 

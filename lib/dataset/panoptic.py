@@ -188,7 +188,7 @@ class Panoptic(JointsDataset):
                             our_cam['fy'] = np.array(v['K'][1, 1])
                             our_cam['cx'] = np.array(v['K'][0, 2])
                             our_cam['cy'] = np.array(v['K'][1, 2])
-                            our_cam['k'] = v['distCoef'][[0, 1, 4]].reshape(3, 1)
+                            our_cam['k'] = v['distCoef'][[0, 1, 4]].reshape(3, 1)   # v['distCoef'] --- [k1, k2, p1, p2, k3]
                             our_cam['p'] = v['distCoef'][[2, 3]].reshape(2, 1)
 
                             db.append({
