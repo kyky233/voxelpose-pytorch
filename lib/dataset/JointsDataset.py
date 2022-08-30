@@ -85,7 +85,7 @@ class JointsDataset(Dataset):
 
         if data_numpy is None:
             # logger.error('=> fail to read {}'.format(image_file))
-            # raise ValueError('Fail to read {}'.format(image_file))
+            raise ValueError('Fail to read {}'.format(image_file))
             return None, None, None, None, None, None
 
         if self.color_rgb:
