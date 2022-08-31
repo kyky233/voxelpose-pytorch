@@ -353,8 +353,8 @@ def main():
     idx = 0
 
     vis_item = False
-    vis_single_group = True
-    vis_groups = False
+    vis_single_group = False
+    vis_groups = True
     with_preprocess = True
 
     # # show processed image
