@@ -13,15 +13,31 @@ import cv2
 import matplotlib.pyplot as plt
 
 
-dataset_root = '/home/yandanqi/0_data/MVHW'
-sequence_list = os.listdir('/home/yandanqi/0_data/MVHW')
-sequence_list = [d for d in sequence_list if '_o' in d]
+dataset_name = 'mvhw'   # panotic
 
+# set dataset path
+if dataset_name == 'mvhw':
+    dataset_root = '/home/yandanqi/0_data/MVHW'
+    sequence_list = os.listdir('/home/yandanqi/0_data/MVHW')
+    sequence_list = [d for d in sequence_list if '_o' in d]
+elif dataset_name == 'panoptic':
+    dataset_root = '/home/yandanqi/0_data/MVHW'
+    sequence_list = ['160906_pizza1']
+else:
+    raise Exception(f"your input dataset_name={dataset_name}, please check your input!")
+
+# set camera list
 num_views = 5
-cam_list = ['c0{}'.format(i) for i in range(1, 9, 1)][:num_views]
+if dataset_name == 'mvhw':
+    cam_list = ['c0{}'.format(i) for i in range(1, 9, 1)][:num_views]
+elif dataset_name == 'panoptic':
+    cam_list = [(0, 12), (0, 6), (0, 23), (0, 13), (0, 3)][:num_views]
 
+# other params
 _interval = 1
 num_joints = 15
+# img_size = np.array([512, 960])
+img_size = np.array([960, 512])
 
 
 def get_3rd_point(a, b):
@@ -220,14 +236,21 @@ def _get_group_item(db, idx):
     return group_rec
 
 
-def preprocess_image(img_path, with_vis=False):
-    image_size = np.array([960, 512])
+def preprocess_image(img_path, with_vis=False, with_custom_transform=False):
+    image_size = img_size
     color_rgb = True
 
     # read image
     data_numpy = cv2.imread(img_path, cv2.IMREAD_COLOR | cv2.IMREAD_IGNORE_ORIENTATION)
     if color_rgb:
         data_numpy = cv2.cvtColor(data_numpy, cv2.COLOR_BGR2RGB)
+
+    if with_custom_transform:
+        '----------- rotate image-----------'
+        data_numpy = cv2.rotate(data_numpy, 0)
+        # cv2.imshow("rotate", data_numpy)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
 
     # resize image to the given self.image_size
     height, width, _ = data_numpy.shape
@@ -252,7 +275,61 @@ def preprocess_image(img_path, with_vis=False):
     return input
 
 
-def show_db_item(db_rec, with_preprocess=True):
+def process_cam_info(origin_cam_dict):
+    """ Consistent with image processing """
+    # consistent with rotate image
+    M = np.array([
+
+    ]).reshape(3, 3)
+    pass
+
+
+def show_compare_image(db_rec):
+    """ show image before and after preprocess
+    Note: to ensure the camera params consist with image preprocess, I'll use some keypoints projection as clues
+    db_rec:
+        'key': "{}_{}-{}".format(seq, k, _get_img_name(idx).split('.')[0]),
+        'image': img_path,
+        'joints_3d': all_poses_3d,
+        'joints_3d_vis': all_poses_vis_3d,
+        'joints_2d': all_poses,
+        'joints_2d_vis': all_poses_vis,
+        'camera': our_cam
+    """
+    image_size = img_size
+    color_rgb = True
+
+    '''------------- origin data ------------------'''
+    # image
+    img_path = db_rec['image']
+    data_numpy = cv2.imread(img_path, cv2.IMREAD_COLOR | cv2.IMREAD_IGNORE_ORIENTATION)
+    if color_rgb:
+        data_numpy = cv2.cvtColor(data_numpy, cv2.COLOR_BGR2RGB)
+    img_origin = data_numpy
+    # camera
+    cam_origin = db_rec['camera']
+    # joints =
+
+    '''------------- process data --------------------'''
+    # 1) rotate image
+    data_numpy = cv2.rotate(data_numpy, 0)
+    # 2) resize image to the given self.image_size
+    # height, width, _ = data_numpy.shape
+    # c = np.array([width / 2.0, height / 2.0])
+    # s = get_scale((width, height), image_size)
+    # r = 0
+    # trans = get_affine_transform(c, s, r, image_size)
+    # input = cv2.warpAffine(
+    #     data_numpy,
+    #     trans, (int(image_size[0]), int(image_size[1])),
+    #     flags=cv2.INTER_LINEAR)
+    img_process = data_numpy
+
+
+
+
+
+def show_db_item(db_rec, with_preprocess=True, with_custom_transform=False):
     """
     db_rec:
         'key': "{}_{}-{}".format(seq, k, _get_img_name(idx).split('.')[0]),
@@ -270,7 +347,7 @@ def show_db_item(db_rec, with_preprocess=True):
     fig = plt.figure(figsize=(1, 1))
     ax = fig.add_subplot(1, 1, 1)
     if with_preprocess:
-        img = preprocess_image(img_path=db_rec['image'], with_vis=False)
+        img = preprocess_image(img_path=db_rec['image'], with_vis=False, with_custom_transform=with_custom_transform)
     else:
         img = plt.imread(db_rec['image'])
     ax.imshow(img)
@@ -279,7 +356,7 @@ def show_db_item(db_rec, with_preprocess=True):
     plt.close()
 
 
-def show_db_single_group(db_group_rec, with_preprocess=True):
+def show_db_single_group(db_group_rec, with_preprocess=True, with_custom_transform=False):
     """
     db_group_rec:
         'key': "{}_{}-{}".format(seq, k, _get_img_name(idx).split('.')[0]),
@@ -300,7 +377,7 @@ def show_db_single_group(db_group_rec, with_preprocess=True):
     for i in range(num_views):
         ax = fig.add_subplot(1, num_views, i+1)
         if with_preprocess:
-            img = preprocess_image(img_path=images[i], with_vis=False)
+            img = preprocess_image(img_path=images[i], with_vis=False, with_custom_transform=with_custom_transform)
         else:
             img = plt.imread(images[i])
         ax.imshow(img)
@@ -309,7 +386,7 @@ def show_db_single_group(db_group_rec, with_preprocess=True):
     plt.close()
 
 
-def show_db_groups(db, num_groups, group_intervals, idx, with_preprocess=True):
+def show_db_groups(db, num_groups, group_intervals, idx, with_preprocess=True, with_custom_transform=False):
     """
     db_group_rec:
         'key': "{}_{}-{}".format(seq, k, _get_img_name(idx).split('.')[0]),
@@ -337,7 +414,7 @@ def show_db_groups(db, num_groups, group_intervals, idx, with_preprocess=True):
         for j in range(num_views):
             ax = fig.add_subplot(num_groups, num_views, i*num_views + j+1)
             if with_preprocess:
-                img = preprocess_image(img_path=images[i][j], with_vis=False)
+                img = preprocess_image(img_path=images[i][j], with_vis=False, with_custom_transform=with_custom_transform)
             else:
                 img = plt.imread(images[i][j])
             ax.imshow(img)
@@ -356,6 +433,7 @@ def main():
     vis_single_group = False
     vis_groups = True
     with_preprocess = True
+    with_custom_transform = True
 
     # # show processed image
     # db_rec = copy.deepcopy(db[idx])
@@ -364,20 +442,20 @@ def main():
     # show db by idx
     if vis_item:
         db_rec = copy.deepcopy(db[idx])
-        show_db_item(db_rec=db_rec, with_preprocess=with_preprocess)
+        show_db_item(db_rec=db_rec, with_preprocess=with_preprocess, with_custom_transform=with_custom_transform)
         print(f"{idx}th rec has been showed!")
 
     # show group db by idx
     if vis_single_group:
         db_group_rec = _get_group_item(db=db, idx=idx)
-        show_db_single_group(db_group_rec=db_group_rec, with_preprocess=with_preprocess)
+        show_db_single_group(db_group_rec=db_group_rec, with_preprocess=with_preprocess, with_custom_transform=with_custom_transform)
         print(f"{idx}th group recs has been showed!")
 
     # show several groups db rec
     if vis_groups:
         num_groups = 7
         group_intervals = 500
-        show_db_groups(db=db, num_groups=num_groups, group_intervals=group_intervals, idx=idx, with_preprocess=with_preprocess)
+        show_db_groups(db=db, num_groups=num_groups, group_intervals=group_intervals, idx=idx, with_preprocess=with_preprocess, with_custom_transform=with_custom_transform)
         print(f"{idx}th~{idx+num_groups}th group recs have been showed!")
 
     print(f"this is the end!")
