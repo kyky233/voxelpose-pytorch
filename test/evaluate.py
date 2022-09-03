@@ -88,18 +88,29 @@ def main():
 
     model.eval()
     preds = []
+    heatmaps_all = []
+    grid_centers_all = []
+    inputs_all = []
     with torch.no_grad():
         for i, (inputs, targets_2d, weights_2d, targets_3d, meta, input_heatmap) in enumerate(tqdm(test_loader)):
             if 'panoptic' or 'mvhw' in config.DATASET.TEST_DATASET:
-                pred, _, _, _, _, _ = model(views=inputs, meta=meta)
+                # pred, _, _, _, _, _ = model(views=inputs, meta=meta)
+                pred, all_heatmaps, grid_centers, _, _, _ = model(views=inputs, meta=meta)
             elif 'campus' in config.DATASET.TEST_DATASET or 'shelf' in config.DATASET.TEST_DATASET:
-                pred, _, _, _, _, _ = model(meta=meta, input_heatmaps=input_heatmap)
+                # pred, _, _, _, _, _ = model(meta=meta, input_heatmaps=input_heatmap)
+                pred, all_heatmaps, grid_centers, _, _, _ = model(meta=meta, input_heatmaps=input_heatmap)
             else:
                 raise Exception(f"use dataset {config.DATASET.TEST_DATASET} for test, which is not declared here...")
 
             pred = pred.detach().cpu().numpy()
+            all_heatmaps = all_heatmaps.detach().cpu().numpy()
+            grid_centers = grid_centers.detach().cpu().numpy()
+            inputs = inputs.detach().cpu().numpy()
             for b in range(pred.shape[0]):
                 preds.append(pred[b])
+                heatmaps_all.append(all_heatmaps[b])
+                grid_centers_all.append(grid_centers[b])
+                inputs_all.append(inputs[b])
 
         tb = PrettyTable()
         if 'panoptic' or 'mvhw' in config.DATASET.TEST_DATASET:
@@ -119,12 +130,18 @@ def main():
             print(tb)
 
     # save pred results
+    results_all = {
+        'inputs': inputs_all,
+        'preds': preds,
+        'heatmaps': heatmaps_all,
+        'grid_centers': grid_centers_all
+    }
     save_dir = './results'
     if not os.path.isdir(save_dir):
         os.mkdir(save_dir)
     save_path = os.path.join(save_dir, config.DATASET.TEST_DATASET+time.strftime("_%Y-%m-%d-%H-%M", time.localtime())+'.pickle')
     with open(save_path, 'wb') as f:
-        pickle.dump(preds, f)
+        pickle.dump(results_all, f)
     print(f"=> pred results have been saved in {os.path.abspath(save_path)}...")
 
 
