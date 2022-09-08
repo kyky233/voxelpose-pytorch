@@ -62,7 +62,7 @@ class MultiPersonPoseNet(nn.Module):
                 grid_centers[i, :num_person[i], 3] = torch.tensor(range(num_person[i]), device=device)
                 grid_centers[i, :num_person[i], 4] = 1.0
         else:
-            root_cubes, grid_centers = self.root_net(all_heatmaps, meta)
+            root_cubes, grid_centers = self.root_net(all_heatmaps, meta)    # here
 
             # calculate 3D heatmap loss
             if targets_3d is not None:

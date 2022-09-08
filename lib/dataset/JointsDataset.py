@@ -60,7 +60,6 @@ class JointsDataset(Dataset):
         self.space_center = np.array(cfg.MULTI_PERSON.SPACE_CENTER)
         self.initial_cube_size = np.array(cfg.MULTI_PERSON.INITIAL_CUBE_SIZE)
 
-
     def _get_db(self):
         raise NotImplementedError
 

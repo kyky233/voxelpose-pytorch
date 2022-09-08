@@ -44,6 +44,7 @@ elif os.path.isdir('/home/yandanqi/0_data/MVHW'):
 else:
     raise Exception(f'please check your VAL_LIST path')
 VAL_LIST = [d for d in VAL_LIST if '_o' in d]   # leave dir with specific string '_o'
+idx_begin = 1
 
 JOINTS_DEF = {
     'neck': 0,
@@ -128,7 +129,7 @@ class MVHW(JointsDataset):
 
     @staticmethod
     def _get_img_name(idx):
-        return str(idx+1).zfill(6)+'.jpg'
+        return str(idx+idx_begin).zfill(6)+'.jpg'
 
     def _get_db(self):
         width = 1920
