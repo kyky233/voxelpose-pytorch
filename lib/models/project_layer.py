@@ -23,6 +23,7 @@ class ProjectLayer(nn.Module):
         self.grid_center = cfg.MULTI_PERSON.SPACE_CENTER
 
     def compute_grid(self, boxSize, boxCenter, nBins, device=None):
+        """ grid_size(space size, 8000*8000*2000), grid_center(space center, 0, -500, 800), cube_size(init cube size, 80, 80, 20) """
         if isinstance(boxSize, int) or isinstance(boxSize, float):
             boxSize = [boxSize, boxSize, boxSize]
         if isinstance(nBins, int):

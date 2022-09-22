@@ -18,7 +18,7 @@ DATASET:
   DATA_FORMAT: jpg
   DATA_AUGMENTATION: False
   FLIP: False
-  ROOT: 'datasets/panoptic-toolbox/data/' # 'data/panoptic/'
+  ROOT: 'panoptic/' #'datasets/panoptic-toolbox/data/'
   ROT_FACTOR: 45
   SCALE_FACTOR: 0.35
   TEST_SUBSET: 'validation'

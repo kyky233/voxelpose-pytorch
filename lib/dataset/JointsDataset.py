@@ -30,7 +30,8 @@ class JointsDataset(Dataset):
         self.is_train = is_train
 
         this_dir = os.path.dirname(__file__)
-        dataset_root = os.path.join(this_dir, '../..', cfg.DATASET.ROOT)
+        # dataset_root = os.path.join(this_dir, '../..', cfg.DATASET.ROOT)
+        dataset_root = os.path.join('/home/yandanqi/0_data', cfg.DATASET.ROOT)
         self.dataset_root = os.path.abspath(dataset_root)
         self.root_id = cfg.DATASET.ROOTIDX
         self.image_set = image_set
