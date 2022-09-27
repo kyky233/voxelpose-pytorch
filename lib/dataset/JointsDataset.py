@@ -32,10 +32,9 @@ class JointsDataset(Dataset):
         this_dir = os.path.dirname(__file__)
         # dataset_root = os.path.join(this_dir, '../..', cfg.DATASET.ROOT)
         if os.path.isdir('/mntnfs/med_data5/wangjiong/datasets'):
-            sys_root = '/mntnfs/med_data5/wangjiong/datasets/'
+            dataset_root = '/mntnfs/med_data5/wangjiong/datasets/mvhuman'
         else:
-            sys_root = '/home/yandanqi/0_data'
-        dataset_root = os.path.join(sys_root, cfg.DATASET.ROOT)
+            dataset_root = '/home/yandanqi/0_data/MVHW'
         self.dataset_root = os.path.abspath(dataset_root)
         self.root_id = cfg.DATASET.ROOTIDX
         self.image_set = image_set
