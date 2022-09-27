@@ -151,8 +151,14 @@ class MVHW(JointsDataset):
     def _get_db(self):
         width = 1920
         height = 1080
+
+        # get 3d kpts dir
+        kpts_dir = osp.join(self.dataset_root, 'kpts3d')
+        print(f"kpts_list = {os.listdir(kpts_dir)}")
+
         db = []
         for seq in self.sequence_list:
+            print(f"current seq = {seq}")
 
             # get camera anno in this seq
             cameras = self._get_cam(seq)
@@ -160,16 +166,16 @@ class MVHW(JointsDataset):
             # get image dir
             img_dir = osp.join(self.dataset_root, seq, 'vframes')
 
-            # get 3d kpts dir
-            kpts_dir = osp.join(self.dataset_root, 'kpts3d')
-            print(f"kpts_list = {os.listdir(kpts_dir)}")
-            print(f"current seq = {seq}")
-
             # get length of this seq
             seq_len = len(glob.glob(osp.join(img_dir, 'c01', '*.jpg')))
 
-            # curr_anno = osp.join(self.dataset_root, seq, 'hdPose3d_stage1_coco19')
-            # anno_files = sorted(glob.iglob('{:s}/*.json'.format(curr_anno)))
+            # get 3d kpts
+            kpts_file_name = [f_name for f_name in os.listdir(kpts_dir) if seq in f_name][0]
+            kpts_path = os.path.join(kpts_dir, kpts_file_name)
+            kpts = np.load(kpts_path, allow_pickle=True)[
+                0]  # dict, dict_keys(['name', 'nframes', 'keypoints3d', 'keypoints3d_optim'])
+            kpts_3d = kpts['keypoints3d_optim'][:, :self.num_joints, :]  # numpy array, [n_frames, n_joints, 3]
+            assert seq_len == kpts['nframes']
 
             for idx in range(seq_len):
                 if idx % self._interval == 0:
@@ -177,12 +183,6 @@ class MVHW(JointsDataset):
                     #     bodies = json.load(dfile)['bodies']
                     # if len(bodies) == 0:
                     #     continue
-
-                    # load all 3d kpts in this seq
-                    kpts_file_name = [f_name for f_name in os.listdir(kpts_dir) if seq in f_name][0]
-                    kpts_path = os.path.join(kpts_dir, kpts_file_name)
-                    kpts = np.load(kpts_path, allow_pickle=True)[0]  # dict, dict_keys(['name', 'nframes', 'keypoints3d', 'keypoints3d_optim'])
-                    kpts_3d = kpts['keypoints3d_optim'][:, :self.num_joints, :]     # numpy array, [n_frames, n_joints, 3]
 
                     for k, v in cameras.items():
                         # get pose
