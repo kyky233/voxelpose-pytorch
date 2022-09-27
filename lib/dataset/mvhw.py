@@ -38,13 +38,14 @@ logger = logging.getLogger(__name__)
 TRAIN_LIST = []
 
 # VAL_LIST = ['b93c8262_o', 'd05eaeb3_o', 'fcb206cd_o']
-if os.path.isdir('/mntnfs/med_data4/wangjiong/datasets/mvhuman'):
-    VAL_LIST = os.listdir('/mntnfs/med_data4/wangjiong/datasets/mvhuman')
+if os.path.isdir('/mntnfs/med_data5/wangjiong/datasets/mvhuman'):
+    VAL_LIST = os.listdir('/mntnfs/med_data5/wangjiong/datasets/mvhuman')
 elif os.path.isdir('/home/yandanqi/0_data/MVHW'):
     VAL_LIST = os.listdir('/home/yandanqi/0_data/MVHW')
 else:
     raise Exception(f'please check your VAL_LIST path')
 VAL_LIST = [d for d in VAL_LIST if '_o' in d]   # leave dir with specific string '_o'
+VAL_LIST = ['0d161c03_o']
 idx_begin = 600     # 1
 multiply_M = False
 use_gt_pose = True
@@ -153,7 +154,9 @@ class MVHW(JointsDataset):
             img_dir = osp.join(self.dataset_root, seq, 'vframes')
 
             # get 3d kpts dir
-            kpts_dir = osp.join(self.dataset_root, 'kpts')
+            kpts_dir = osp.join(self.dataset_root, 'kpts3d')
+            print(f"kpts_list = {os.listdir(kpts_dir)}")
+            print(f"current seq = {seq}")
 
             # get length of this seq
             seq_len = len(glob.glob(osp.join(img_dir, 'c01', '*.jpg')))
@@ -172,7 +175,7 @@ class MVHW(JointsDataset):
                     kpts_file_name = [f_name for f_name in os.listdir(kpts_dir) if seq in f_name][0]
                     kpts_path = os.path.join(kpts_dir, kpts_file_name)
                     kpts = np.load(kpts_path, allow_pickle=True)[0]  # dict, dict_keys(['name', 'nframes', 'keypoints3d', 'keypoints3d_optim'])
-                    kpts_3d = kpts['keypoints3d_optim']     # numpy array, [n_frames, n_joints, 3]
+                    kpts_3d = kpts['keypoints3d_optim'][:, :self.num_joints, :]     # numpy array, [n_frames, n_joints, 3]
 
                     for k, v in cameras.items():
                         # get pose
@@ -183,7 +186,7 @@ class MVHW(JointsDataset):
                         # real pose
                         if use_gt_pose:
                             pose3d = kpts_3d[idx]
-                            joints_vis = pose3d
+                            joints_vis = np.array([True for i in range(pose3d.shape[0])])
                             if not joints_vis[self.root_id]:
                                 continue
                             if multiply_M:  # Coordinate transformation
