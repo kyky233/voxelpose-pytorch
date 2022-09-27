@@ -95,25 +95,25 @@ class Panoptic(JointsDataset):
             self.cam_list = [(0, 12), (0, 6), (0, 23), (0, 13), (0, 3)][:self.num_views]
             self.num_views = len(self.cam_list)
 
-        self.db_file = 'group_{}_cam{}.pkl'.format(self.image_set, self.num_views)
-        self.db_file = os.path.join(self.dataset_root, self.db_file)
-
-        if osp.exists(self.db_file):
-            info = pickle.load(open(self.db_file, 'rb'))
-            assert info['sequence_list'] == self.sequence_list
-            assert info['interval'] == self._interval
-            assert info['cam_list'] == self.cam_list
-            self.db = info['db']
-        else:
-            self.db = self._get_db()
-            info = {
-                'sequence_list': self.sequence_list,
-                'interval': self._interval,
-                'cam_list': self.cam_list,
-                'db': self.db
-            }
-            pickle.dump(info, open(self.db_file, 'wb'))
-        # self.db = self._get_db()
+        # self.db_file = 'group_{}_cam{}.pkl'.format(self.image_set, self.num_views)
+        # self.db_file = os.path.join(self.dataset_root, self.db_file)
+        #
+        # if osp.exists(self.db_file):
+        #     info = pickle.load(open(self.db_file, 'rb'))
+        #     assert info['sequence_list'] == self.sequence_list
+        #     assert info['interval'] == self._interval
+        #     assert info['cam_list'] == self.cam_list
+        #     self.db = info['db']
+        # else:
+        #     self.db = self._get_db()
+        #     info = {
+        #         'sequence_list': self.sequence_list,
+        #         'interval': self._interval,
+        #         'cam_list': self.cam_list,
+        #         'db': self.db
+        #     }
+        #     pickle.dump(info, open(self.db_file, 'wb'))
+        self.db = self._get_db()
         self.db_size = len(self.db)
 
     def _get_db(self):
