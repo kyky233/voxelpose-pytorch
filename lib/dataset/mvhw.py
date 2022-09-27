@@ -19,6 +19,7 @@ import cv2
 
 from dataset.JointsDataset import JointsDataset
 from utils.transforms import projectPoints
+from utils import cameras as util_cams
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,10 @@ elif os.path.isdir('/home/yandanqi/0_data/MVHW'):
 else:
     raise Exception(f'please check your VAL_LIST path')
 VAL_LIST = [d for d in VAL_LIST if '_o' in d]   # leave dir with specific string '_o'
-idx_begin = 1
+idx_begin = 600     # 1
+multiply_M = False
+use_gt_pose = True
+
 
 JOINTS_DEF = {
     'neck': 0,
@@ -84,6 +88,11 @@ LIMBS = [[0, 1],
          [13, 14]]
 
 
+M = np.array([[1.0, 0.0, 0.0],
+              [0.0, 0.0, -1.0],
+              [0.0, 1.0, 0.0]])
+
+
 class MVHW(JointsDataset):
     def __init__(self, cfg, image_set, is_train, transform=None):
         super().__init__(cfg, image_set, is_train, transform)
@@ -106,8 +115,8 @@ class MVHW(JointsDataset):
             self.cam_list = ['c0{}'.format(i) for i in range(1, 9, 1)][:self.num_views]   # [0, 1, 2, 3, 4, 5, 6, 7]
             self.num_views = len(self.cam_list)
 
-        self.db_file = 'group_{}_cam{}.pkl'.format(self.image_set, self.num_views)
-        self.db_file = os.path.join(self.dataset_root, self.db_file)
+        #self.db_file = 'group_{}_cam{}.pkl'.format(self.image_set, self.num_views)
+        #self.db_file = os.path.join(self.dataset_root, self.db_file)
 
         # if osp.exists(self.db_file):
         #     info = pickle.load(open(self.db_file, 'rb'))
@@ -129,7 +138,7 @@ class MVHW(JointsDataset):
 
     @staticmethod
     def _get_img_name(idx):
-        return str(idx+idx_begin).zfill(6)+'.jpg'
+        return str(idx + idx_begin).zfill(6)+'.jpg'
 
     def _get_db(self):
         width = 1920
@@ -142,6 +151,9 @@ class MVHW(JointsDataset):
 
             # get image dir
             img_dir = osp.join(self.dataset_root, seq, 'vframes')
+
+            # get 3d kpts dir
+            kpts_dir = osp.join(self.dataset_root, 'kpts')
 
             # get length of this seq
             seq_len = len(glob.glob(osp.join(img_dir, 'c01', '*.jpg')))
@@ -156,7 +168,60 @@ class MVHW(JointsDataset):
                     # if len(bodies) == 0:
                     #     continue
 
+                    # load all 3d kpts in this seq
+                    kpts_file_name = [f_name for f_name in os.listdir(kpts_dir) if seq in f_name][0]
+                    kpts_path = os.path.join(kpts_dir, kpts_file_name)
+                    kpts = np.load(kpts_path, allow_pickle=True)[0]  # dict, dict_keys(['name', 'nframes', 'keypoints3d', 'keypoints3d_optim'])
+                    kpts_3d = kpts['keypoints3d_optim']     # numpy array, [n_frames, n_joints, 3]
+
                     for k, v in cameras.items():
+                        # get pose
+                        all_poses_3d = []
+                        all_poses_vis_3d = []
+                        all_poses = []
+                        all_poses_vis = []
+                        # real pose
+                        if use_gt_pose:
+                            pose3d = kpts_3d[idx]
+                            joints_vis = pose3d
+                            if not joints_vis[self.root_id]:
+                                continue
+                            if multiply_M:  # Coordinate transformation
+                                pose3d[:, 0:3] = pose3d[:, 0:3].dot(M)
+                            all_poses_3d.append(pose3d[:, 0:3] * 10.0)
+                            all_poses_vis_3d.append(np.repeat(np.reshape(joints_vis, (-1, 1)), 3, axis=1))
+
+                            pose2d = np.zeros((pose3d.shape[0], 2))
+                            pose2d[:, :2] = projectPoints(pose3d[:, 0:3].transpose(), v['K'], v['R'], v['t'], v['distCoef']).transpose()[:, :2]
+                            x_check = np.bitwise_and(pose2d[:, 0] >= 0,
+                                                     pose2d[:, 0] <= width - 1)
+                            y_check = np.bitwise_and(pose2d[:, 1] >= 0,
+                                                     pose2d[:, 1] <= height - 1)
+                            check = np.bitwise_and(x_check, y_check)
+                            joints_vis[np.logical_not(check)] = 0
+
+                            all_poses.append(pose2d)
+                            all_poses_vis.append(np.repeat( np.reshape(joints_vis, (-1, 1)), 2, axis=1))
+
+                        else:
+                            # fake pose
+                            pose3d = np.zeros(shape=[self.num_joints, 3])
+                            all_poses_3d.append(pose3d)
+                            pose3d_vis = pose3d
+                            all_poses_vis_3d.append(pose3d_vis)
+                            pose2d = np.zeros(shape=[pose3d.shape[0], 2])
+                            all_poses.append(pose2d)
+                            pose2d_vis = pose2d
+                            all_poses_vis.append(pose2d_vis)
+
+                        # if multiply_M:
+                        #     pose3d = pose3d.dot(M)
+                        #     R, T, f, c, k, p = util_cams.unfold_camera_param(camera=our_cam)
+                        #     pose2d = util_cams.project_point_radial(x_world=pose3d, R=R, T=T, f=f, c=c, k=k, p=p)
+
+                        # get image
+                        img_path = osp.join(img_dir, k, self._get_img_name(idx))
+
                         # get each cam
                         our_cam = dict()
                         our_cam['R'] = v['R']
@@ -165,26 +230,8 @@ class MVHW(JointsDataset):
                         our_cam['fy'] = np.array(v['K'][1, 1])
                         our_cam['cx'] = np.array(v['K'][0, 2])
                         our_cam['cy'] = np.array(v['K'][1, 2])
-                        our_cam['k'] = v['distCoef'][[0, 1, 2]].reshape(3, 1)
-                        our_cam['p'] = v['distCoef'][[3, 4]].reshape(2, 1)
-
-                        # get image
-                        img_path = osp.join(img_dir, k, self._get_img_name(idx))
-
-                        # get pose
-                        all_poses_3d = []
-                        all_poses_vis_3d = []
-                        all_poses = []
-                        all_poses_vis = []
-                        # fake pose
-                        pose3d = np.zeros(shape=[self.num_joints, 3])
-                        all_poses_3d.append(pose3d)
-                        pose3d_vis = pose3d
-                        all_poses_vis_3d.append(pose3d_vis)
-                        pose2d = np.zeros(shape=[pose3d.shape[0], 2])
-                        all_poses.append(pose2d)
-                        pose2d_vis = pose2d
-                        all_poses_vis.append(pose2d_vis)
+                        our_cam['k'] = v['distCoef'][[0, 1, 4]].reshape(3, 1)
+                        our_cam['p'] = v['distCoef'][[2, 3]].reshape(2, 1)
 
                         db.append({
                             'key': "{}_{}-{}".format(seq, k, self._get_img_name(idx).split('.')[0]),
@@ -202,9 +249,9 @@ class MVHW(JointsDataset):
         with open(cam_file) as cfile:
             calib = json.load(cfile)
 
-        M = np.array([[1.0, 0.0, 0.0],
-                      [0.0, 0.0, -1.0],
-                      [0.0, 1.0, 0.0]])
+        # M = np.array([[1.0, 0.0, 0.0],
+        #               [0.0, 0.0, -1.0],
+        #               [0.0, 1.0, 0.0]])
         cameras = {}
         for cam in calib:
             if cam['name'] in self.cam_list:    # # 'c01'-'c05' cams if num_list=5
@@ -212,7 +259,9 @@ class MVHW(JointsDataset):
                 sel_cam['K'] = np.array(cam['matrix'])
                 sel_cam['distCoef'] = np.array(cam['distortions'])
                 # sel_cam['R'] = np.array(cam['R']).dot(M)
-                sel_cam['R'] = cv2.Rodrigues(np.array(cam['rotation']))[0].dot(M)
+                sel_cam['R'] = cv2.Rodrigues(np.array(cam['rotation']))[0]
+                if multiply_M:
+                    sel_cam['R'] = sel_cam['R'].dot(M)
                 sel_cam['t'] = np.array(cam['translation']).reshape((3, 1))
                 cameras[cam['name']] = sel_cam
         return cameras
