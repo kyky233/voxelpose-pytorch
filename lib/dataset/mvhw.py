@@ -35,19 +35,26 @@ logger = logging.getLogger(__name__)
 #     '160906_band2',
 #     '160906_band3',
 # ]
-TRAIN_LIST = []
 
-# VAL_LIST = ['b93c8262_o', 'd05eaeb3_o', 'fcb206cd_o']
-if os.path.isdir('/mntnfs/med_data5/wangjiong/datasets/mvhuman'):
-    VAL_LIST = os.listdir('/mntnfs/med_data5/wangjiong/datasets/mvhuman')
-elif os.path.isdir('/home/yandanqi/0_data/MVHW'):
-    VAL_LIST = os.listdir('/home/yandanqi/0_data/MVHW')
+# redefine dataset root
+if os.path.isdir('/mntnfs/med_data5/wangjiong'):
+    data_root = '/mntnfs/med_data5/wangjiong/datasets/mvhuman'
 else:
-    raise Exception(f'please check your VAL_LIST path')
-VAL_LIST = [d for d in VAL_LIST if '_o' in d]   # leave dir with specific string '_o'
-VAL_LIST = ['0d161c03_o']
-idx_begin = 600     # 1
-multiply_M = False
+    data_root = '/home/yandanqi/0_data/MVHW'
+TRAIN_LIST = [d for d in os.listdir(data_root) if '_o' in d][:-2]
+VAL_LIST = [d for d in os.listdir(data_root) if '_o' in d][-2:]
+
+# # VAL_LIST = ['b93c8262_o', 'd05eaeb3_o', 'fcb206cd_o']
+# if os.path.isdir('/mntnfs/med_data5/wangjiong/datasets/mvhuman'):
+#     VAL_LIST = os.listdir('/mntnfs/med_data5/wangjiong/datasets/mvhuman')
+# elif os.path.isdir('/home/yandanqi/0_data/MVHW'):
+#     VAL_LIST = os.listdir('/home/yandanqi/0_data/MVHW')
+# else:
+#     raise Exception(f'please check your VAL_LIST path')
+# VAL_LIST = [d for d in VAL_LIST if '_o' in d]   # leave dir with specific string '_o'
+# VAL_LIST = ['0d161c03_o']
+idx_begin = 1     # 1
+multiply_M = True
 use_gt_pose = True
 
 
