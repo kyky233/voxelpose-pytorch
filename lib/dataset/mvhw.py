@@ -231,6 +231,7 @@ class MVHW(JointsDataset):
 
                         # get image
                         img_path = osp.join(img_dir, k, self._get_img_name(idx))
+                        assert os.path.isfile(img_path)
 
                         # get each cam
                         our_cam = dict()
