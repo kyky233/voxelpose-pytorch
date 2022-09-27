@@ -76,6 +76,7 @@ def main():
             transforms.ToTensor(),
             normalize,
         ]))
+    print(f'=> dataset {config.DATASET.TRAIN_DATASET} has {len(train_dataset)} in total...')
 
     train_loader = torch.utils.data.DataLoader(
         train_dataset,
