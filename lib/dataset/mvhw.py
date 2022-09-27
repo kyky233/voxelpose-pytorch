@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 # ]
 
 # redefine dataset root
-if os.path.isdir('/mntnfs/med_data5/wangjiong'):
+if os.path.isdir('/mntnfs/med_data5/wangjiong/datasets/mvhuman'):
     data_root = '/mntnfs/med_data5/wangjiong/datasets/mvhuman'
 else:
     data_root = '/home/yandanqi/0_data/MVHW'
@@ -108,6 +108,8 @@ class MVHW(JointsDataset):
         self.joints_def = JOINTS_DEF
         self.limbs = LIMBS
         self.num_joints = len(JOINTS_DEF)
+        self.dataset_root = data_root
+        print(f"=> load data from {self.dataset_root}")
 
         if self.image_set == 'train':
             self.sequence_list = TRAIN_LIST
