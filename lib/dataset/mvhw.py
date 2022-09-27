@@ -113,10 +113,8 @@ class MVHW(JointsDataset):
 
         if self.image_set == 'train':
             self.sequence_list = TRAIN_LIST
-            self._interval = 3
-            self.cam_list = [(0, 12), (0, 6), (0, 23), (0, 13), (0, 3)][:self.num_views]
-            # self.cam_list = list(set([(0, n) for n in range(0, 31)]) - {(0, 12), (0, 6), (0, 23), (0, 13), (0, 3)})
-            # self.cam_list.sort()
+            self._interval = 1
+            self.cam_list = ['c0{}'.format(i) for i in range(1, 9, 1)][:self.num_views]   # [0, 1, 2, 3, 4, 5, 6, 7]
             self.num_views = len(self.cam_list)
         elif self.image_set == 'validation':
             self.sequence_list = VAL_LIST
