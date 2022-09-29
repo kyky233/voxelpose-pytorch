@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#SBATCH -J VOXELPOSE_MVHW_VAL
-#SBATCH -p p-V100
+#SBATCH -J voxelpose_mvhw_val
+#SBATCH -p p-A100
 #SBATCH -N 1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=12
