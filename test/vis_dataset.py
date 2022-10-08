@@ -34,6 +34,7 @@ from utils.vis import save_debug_images_multi
 from utils.vis import save_debug_3d_images
 from utils.vis import save_debug_3d_cubes
 from utils import vis
+from utils import util
 import pdb
 
 
@@ -94,6 +95,7 @@ def main():
             # convert image (unnormalized, dtype, channel)
             #pdb.set_trace()
             imgs = inputs[k][:vis_batch_size]
+            imgs = util.invert_normalized_tensor(in_tensor=imgs, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
             imgs = imgs.mul(255).clamp(0, 255).permute(0, 2, 3, 1).detach().cpu().numpy().astype(np.int)
 
             for j in range(n_cols):

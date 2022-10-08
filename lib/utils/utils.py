@@ -144,3 +144,31 @@ def load_backbone_panoptic(model, pretrained_file):
     model.module.backbone.load_state_dict(new_pretrained_state_dict)
 
     return model
+
+
+def invert_normalized_tensor(in_tensor, mean, std):
+    """ do un-normalize to the tensor which is already normalized with input mean and std
+    Params:
+        in_tensor: [B, C, H, W] or [C, H, W]
+        mean: [C, ]
+        std: [C, ]
+    Notes:
+        normalize: x_nor = (x - mean) / std
+        un-normalize: x = x_nor * std + mean
+    """
+    assert in_tensor.shape[-3] == len(mean) == len(std)  # have same channel
+
+    # inv_normalize = transforms.Normalize(
+    #    mean=[-m/s for m, s in zip(mean, std)],
+    #    std=[1/s for s in std]
+    # )
+    # return inv_normalize(in_tensor)
+
+    if len(in_tensor.shape) == 3:   # in_tensor.shape=[C, H, W]
+        mean = torch.from_numpy(np.array(mean))[:, None, None]
+        std = torch.from_numpy(np.array(std))[:, None, None]
+    else:   # in_tensor.shape=[B, C, H, W]
+        mean = torch.from_numpy(np.array(mean))[None, :, None, None]
+        std = torch.from_numpy(np.array(std))[None, :, None, None]
+
+    return in_tensor * std + mean
