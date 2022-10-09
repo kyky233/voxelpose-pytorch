@@ -39,7 +39,7 @@ def train_3d(config, model, optimizer, loader, epoch, output_dir, writer_dict, d
         # clear gradient
         # optimizer.zero_grad()
 
-        if 'panoptic' in config.DATASET.TEST_DATASET or 'mvhw' in config.DATASET.TEST_DATASET:
+        if 'panoptic' in config.DATASET.TEST_DATASET or 'mvhw' in config.DATASET.TEST_DATASET or 'h36m' in config.DATASET.TEST_DATASET:
             pred, heatmaps, grid_centers, loss_2d, loss_3d, loss_cord = model(views=inputs, meta=meta,
                                                                               targets_2d=targets_2d,
                                                                               weights_2d=weights_2d,
@@ -47,6 +47,8 @@ def train_3d(config, model, optimizer, loader, epoch, output_dir, writer_dict, d
         elif 'campus' in config.DATASET.TEST_DATASET or 'shelf' in config.DATASET.TEST_DATASET:
             pred, heatmaps, grid_centers, loss_2d, loss_3d, loss_cord = model(meta=meta, targets_3d=targets_3d[0],
                                                                               input_heatmaps=input_heatmap)
+        else:
+            raise Exception(f"your input dataset is {config.DATASET.TEST_DATASET}, which is not specified here...")
 
         loss_2d = loss_2d.mean()
         loss_3d = loss_3d.mean()
@@ -123,12 +125,15 @@ def validate_3d(config, model, loader, output_dir):
         end = time.time()
         for i, (inputs, targets_2d, weights_2d, targets_3d, meta, input_heatmap) in enumerate(loader):
             data_time.update(time.time() - end)
-            if 'panoptic' in config.DATASET.TEST_DATASET or 'mvhw' in config.DATASET.TEST_DATASET:
+            if 'panoptic' in config.DATASET.TEST_DATASET or 'mvhw' in config.DATASET.TEST_DATASET or 'h36m' in config.DATASET.TEST_DATASET:
                 pred, heatmaps, grid_centers, _, _, _ = model(views=inputs, meta=meta, targets_2d=targets_2d,
                                                               weights_2d=weights_2d, targets_3d=targets_3d[0])
             elif 'campus' in config.DATASET.TEST_DATASET or 'shelf' in config.DATASET.TEST_DATASET:
                 pred, heatmaps, grid_centers, _, _, _ = model(meta=meta, targets_3d=targets_3d[0],
                                                               input_heatmaps=input_heatmap)
+            else:
+                raise Exception(f"your input dataset is {config.DATASET.TEST_DATASET}, which is not specified here...")
+
             pred = pred.detach().cpu().numpy()
             for b in range(pred.shape[0]):
                 preds.append(pred[b])
