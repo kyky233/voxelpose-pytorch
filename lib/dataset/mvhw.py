@@ -42,7 +42,7 @@ if os.path.isdir('/mntnfs/med_data5/wangjiong/datasets/mvhuman'):
 else:
     data_root = '/home/yandanqi/0_data/MVHW'
 DATA_LIST = [d for d in os.listdir(data_root) if '_o' in d]
-if len(DATA_LIST) > 1:
+if len(DATA_LIST) > 2:
     TRAIN_LIST = DATA_LIST[:-2]
     VAL_LIST = DATA_LIST[-2:]
 else:
@@ -62,44 +62,6 @@ idx_begin = 1     # 1
 multiply_M = False
 use_gt_pose = True
 use_own_format = True
-
-
-JOINTS_DEF = {
-    'neck': 0,
-    'nose': 1,
-    'mid-hip': 2,
-    'l-shoulder': 3,
-    'l-elbow': 4,
-    'l-wrist': 5,
-    'l-hip': 6,
-    'l-knee': 7,
-    'l-ankle': 8,
-    'r-shoulder': 9,
-    'r-elbow': 10,
-    'r-wrist': 11,
-    'r-hip': 12,
-    'r-knee': 13,
-    'r-ankle': 14,
-    # 'l-eye': 15,
-    # 'l-ear': 16,
-    # 'r-eye': 17,
-    # 'r-ear': 18,
-}
-
-LIMBS = [[0, 1],
-         [0, 2],
-         [0, 3],
-         [3, 4],
-         [4, 5],
-         [0, 9],
-         [9, 10],
-         [10, 11],
-         [2, 6],
-         [2, 12],
-         [6, 7],
-         [7, 8],
-         [12, 13],
-         [13, 14]]
 
 if use_own_format:
     JOINTS_DEF = {
@@ -141,6 +103,44 @@ if use_own_format:
              [2, 1],
              [6, 5],
              [6, 12]]
+
+else:
+    JOINTS_DEF = {
+        'neck': 0,
+        'nose': 1,
+        'mid-hip': 2,
+        'l-shoulder': 3,
+        'l-elbow': 4,
+        'l-wrist': 5,
+        'l-hip': 6,
+        'l-knee': 7,
+        'l-ankle': 8,
+        'r-shoulder': 9,
+        'r-elbow': 10,
+        'r-wrist': 11,
+        'r-hip': 12,
+        'r-knee': 13,
+        'r-ankle': 14,
+        # 'l-eye': 15,
+        # 'l-ear': 16,
+        # 'r-eye': 17,
+        # 'r-ear': 18,
+    }
+
+    LIMBS = [[0, 1],
+             [0, 2],
+             [0, 3],
+             [3, 4],
+             [4, 5],
+             [0, 9],
+             [9, 10],
+             [10, 11],
+             [2, 6],
+             [2, 12],
+             [6, 7],
+             [7, 8],
+             [12, 13],
+             [13, 14]]
 
 
 # MVHW_TO_PANOPTIC = [8, 9, 0, 11, 12, 13, 4, 5, 6, 14, 15, 16, 1, 2, 3]
