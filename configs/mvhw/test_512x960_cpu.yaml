@@ -5,7 +5,7 @@ CUDNN:
 BACKBONE_MODEL: 'pose_resnet'
 MODEL: 'multi_person_posenet'
 DATA_DIR: ''
-GPUS: '0'   #'0'
+GPUS: '-1'   #'0'
 OUTPUT_DIR: 'output'
 LOG_DIR: 'log'
 WORKERS: 4
@@ -13,7 +13,7 @@ PRINT_FREQ: 100
 
 DATASET:
   COLOR_RGB: True
-  TRAIN_DATASET: 'mvhw'
+  TRAIN_DATASET: 'panoptic'
   TEST_DATASET: 'mvhw'
   DATA_FORMAT: jpg
   DATA_AUGMENTATION: False
@@ -36,7 +36,7 @@ NETWORK:
   - 128
   - 240
   SIGMA: 3
-  NUM_JOINTS: 17
+  NUM_JOINTS: 15
   USE_GT: False
 POSE_RESNET:
   FINAL_CONV_KERNEL: 1
@@ -54,11 +54,11 @@ POSE_RESNET:
 LOSS:
   USE_TARGET_WEIGHT: true
 TRAIN:
-  BATCH_SIZE: 8
+  BATCH_SIZE: 4
   SHUFFLE: true
   BEGIN_EPOCH: 0
   END_EPOCH: 10
-  RESUME: false
+  RESUME: true
   OPTIMIZER: adam
   LR: 0.0001
 TEST:

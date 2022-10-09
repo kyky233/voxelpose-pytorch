@@ -41,10 +41,10 @@ if os.path.isdir('/mntnfs/med_data5/wangjiong/datasets/mvhuman'):
     data_root = '/mntnfs/med_data5/wangjiong/datasets/mvhuman'
 else:
     data_root = '/home/yandanqi/0_data/MVHW'
-DATA_LIST = [d for d in os.listdir(data_root) if '_o' in d]
+DATA_LIST = [d for d in os.listdir(data_root) if '_o' in d][:3]
 if len(DATA_LIST) > 2:
-    TRAIN_LIST = DATA_LIST[:-2]
-    VAL_LIST = DATA_LIST[-2:]
+    TRAIN_LIST = DATA_LIST[:-1]
+    VAL_LIST = DATA_LIST[-1:]
 else:
     TRAIN_LIST = DATA_LIST
     VAL_LIST = DATA_LIST
