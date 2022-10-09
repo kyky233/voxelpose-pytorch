@@ -78,18 +78,21 @@ class H36M(JointsDataset):
 
         self.db_file = 'h36m_quickload_{}.pkl'.format(self.image_set)
         self.db_file = os.path.join(self.dataset_root, self.db_file)
+        #
+        # if osp.exists(self.db_file):
+        #     with open(self.db_file, 'rb') as f:
+        #         grouping_db = pickle.load(f)
+        #         self.grouping = grouping_db['grouping']
+        #         self.db = grouping_db['db']
+        # else:
+        #     self.db = self._get_db()
+        #     self.grouping = self._get_group(self.db)
+        #     grouping_db_to_dump = {'grouping': self.grouping, 'db': self.db}
+        #     with open(self.db_file, 'wb') as f:
+        #         pickle.dump(grouping_db_to_dump, f)
 
-        if osp.exists(self.db_file):
-            with open(self.db_file, 'rb') as f:
-                grouping_db = pickle.load(f)
-                self.grouping = grouping_db['grouping']
-                self.db = grouping_db['db']
-        else:
-            self.db = self._get_db()
-            self.grouping = self._get_group(self.db)
-            grouping_db_to_dump = {'grouping': self.grouping, 'db': self.db}
-            with open(self.db_file, 'wb') as f:
-                pickle.dump(grouping_db_to_dump, f)
+        self.db = self._get_db()
+        self.grouping = self._get_group(self.db)
 
         if self.is_train:
             self.grouping = self.grouping[::5]
