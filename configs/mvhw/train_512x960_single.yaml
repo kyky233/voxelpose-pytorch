@@ -23,7 +23,7 @@ DATASET:
   SCALE_FACTOR: 0.35
   TEST_SUBSET: 'validation'
   TRAIN_SUBSET: 'train'
-  ROOTIDX: 2
+  ROOTIDX: 0
   CAMERA_NUM: 5
 NETWORK:
   PRETRAINED_BACKBONE: "models/pose_resnet50_panoptic.pth.tar"
@@ -36,7 +36,7 @@ NETWORK:
   - 128
   - 240
   SIGMA: 3
-  NUM_JOINTS: 15
+  NUM_JOINTS: 17
   USE_GT: False
 POSE_RESNET:
   FINAL_CONV_KERNEL: 1
