@@ -10,6 +10,7 @@ from __future__ import print_function
 import os
 import logging
 import time
+import numpy as np
 from pathlib import Path
 
 import torch

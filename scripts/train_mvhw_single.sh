@@ -13,7 +13,8 @@
 
 # export MASTER_PORT=$((12000 + $RANDOM % 2000))
 set -x
-CONFIG=configs/mvhw/train_prn64_cpn80x80x20_single.yaml
+#CONFIG=configs/mvhw/train_prn64_cpn80x80x20_single.yaml
+CONFIG=configs/mvhw/train_prn64_512x960_cpn80x80x20_single.yaml
 
 # PYTHONPATH="$(dirname ./scripts/train_mvhw.sh)/..":$PYTHONPATH \
 which python
