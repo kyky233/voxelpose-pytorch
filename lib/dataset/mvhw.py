@@ -41,8 +41,13 @@ if os.path.isdir('/mntnfs/med_data5/wangjiong/datasets/mvhuman'):
     data_root = '/mntnfs/med_data5/wangjiong/datasets/mvhuman'
 else:
     data_root = '/home/yandanqi/0_data/MVHW'
-TRAIN_LIST = [d for d in os.listdir(data_root) if '_o' in d][:-2]
-VAL_LIST = [d for d in os.listdir(data_root) if '_o' in d][-2:]
+DATA_LIST = [d for d in os.listdir(data_root) if '_o' in d]
+if len(DATA_LIST) > 1:
+    TRAIN_LIST = DATA_LIST[:-2]
+    VAL_LIST = DATA_LIST[-2:]
+else:
+    TRAIN_LIST = DATA_LIST
+    VAL_LIST = DATA_LIST
 
 # # VAL_LIST = ['b93c8262_o', 'd05eaeb3_o', 'fcb206cd_o']
 # if os.path.isdir('/mntnfs/med_data5/wangjiong/datasets/mvhuman'):
@@ -54,8 +59,9 @@ VAL_LIST = [d for d in os.listdir(data_root) if '_o' in d][-2:]
 # VAL_LIST = [d for d in VAL_LIST if '_o' in d]   # leave dir with specific string '_o'
 # VAL_LIST = ['0d161c03_o']
 idx_begin = 1     # 1
-multiply_M = True
+multiply_M = False
 use_gt_pose = True
+use_own_format = True
 
 
 JOINTS_DEF = {
@@ -95,6 +101,49 @@ LIMBS = [[0, 1],
          [12, 13],
          [13, 14]]
 
+if use_own_format:
+    JOINTS_DEF = {
+        'nose': 0,
+        'left_eye': 1,
+        'right_eye': 2,
+        'left_ear': 3,
+        'right_ear': 4,
+        'left_shoulder': 5,
+        'right_shoulder': 6,
+        'left_elbow': 7,
+        'right_elbow': 8,
+        'left_wrist': 9,
+        'right_wrist': 10,
+        'left_hip': 11,
+        'right_hip': 12,
+        'left_knee': 13,
+        'right_knee': 14,
+        'left_ankle': 15,
+        'right_ankle': 16,
+    }
+
+    LIMBS = [[0, 1],
+             [0, 2],
+             [1, 3],
+             [1, 5],
+             [2, 4],
+             [2, 6],
+             [5, 7],
+             [6, 8],
+             [9, 7],
+             [8, 10],
+             [5, 11],
+             [11, 12],
+             [11, 13],
+             [12, 14],
+             [13, 15],
+             [14, 16],
+             [2, 1],
+             [6, 5],
+             [6, 12]]
+
+
+# MVHW_TO_PANOPTIC = [8, 9, 0, 11, 12, 13, 4, 5, 6, 14, 15, 16, 1, 2, 3]
 
 M = np.array([[1.0, 0.0, 0.0],
               [0.0, 0.0, -1.0],
@@ -149,8 +198,8 @@ class MVHW(JointsDataset):
         return str(idx + idx_begin).zfill(6)+'.jpg'
 
     def _get_db(self):
-        width = 1920
-        height = 1080
+        width = 1080
+        height = 1920
 
         # get 3d kpts dir
         kpts_dir = osp.join(self.dataset_root, 'kpts3d')

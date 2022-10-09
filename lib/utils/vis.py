@@ -136,6 +136,29 @@ def save_debug_images_multi(config, input, meta, target, output, prefix):
     if config.DEBUG.SAVE_HEATMAPS_PRED:
         save_batch_heatmaps_multi(input, output, '{}_hm_pred.jpg'.format(prefix2))
 
+
+def save_dataset_gts_multi(config, input, meta, target, prefix):
+    if not config.DEBUG.DEBUG:
+        return
+
+    basename = os.path.basename(prefix)
+    dirname = os.path.dirname(prefix)
+    dirname1 = os.path.join(dirname, 'image_with_joints')
+    dirname2 = os.path.join(dirname, 'batch_heatmaps')
+
+    for dir in [dirname1, dirname2]:
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+
+    prefix1 = os.path.join(dirname1, basename)
+    prefix2 = os.path.join(dirname2, basename)
+
+    if config.DEBUG.SAVE_BATCH_IMAGES_GT:
+        save_batch_image_with_joints_multi(input, meta['joints'], meta['joints_vis'], meta['num_person'], '{}_gt.jpg'.format(prefix1))
+    if config.DEBUG.SAVE_HEATMAPS_GT:
+        save_batch_heatmaps_multi(input, target, '{}_hm_gt.jpg'.format(prefix2))
+
+
 # panoptic
 LIMBS15 = [[0, 1], [0, 2], [0, 3], [3, 4], [4, 5], [0, 9], [9, 10],
          [10, 11], [2, 6], [2, 12], [6, 7], [7, 8], [12, 13], [13, 14]]
