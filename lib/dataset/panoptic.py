@@ -53,10 +53,6 @@ JOINTS_DEF = {
     'r-hip': 12,
     'r-knee': 13,
     'r-ankle': 14,
-    # 'l-eye': 15,
-    # 'l-ear': 16,
-    # 'r-eye': 17,
-    # 'r-ear': 18,
 }
 
 LIMBS = [[0, 1],
