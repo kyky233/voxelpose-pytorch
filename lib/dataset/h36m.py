@@ -68,9 +68,6 @@ LIMBS = [[0, 1],
 H36M_TO_PANOPTIC = [8, 9, 0, 11, 12, 13, 4, 5, 6, 14, 15, 16, 1, 2, 3]
 
 
-small_batch = 40  # None or int
-
-
 class H36M(JointsDataset):
     def __init__(self, cfg, image_set, is_train, transform=None):
         super().__init__(cfg, image_set, is_train, transform)
@@ -238,10 +235,7 @@ class H36M(JointsDataset):
         return input, target, weight, target_3d, meta, input_heatmap
 
     def __len__(self):
-        if small_batch:
-            return small_batch
-        else:
-            return self.group_size
+        return self.group_size
 
     def evaluate(self, preds):
         eval_list = []
