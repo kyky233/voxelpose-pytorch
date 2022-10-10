@@ -246,6 +246,7 @@ class H36M(JointsDataset):
     def evaluate(self, preds):
         eval_list = []
         gt_num = self.group_size
+        print(f"len(preds) = {len(preds)}, gt_num = {gt_num}")
         assert len(preds) == gt_num, 'number mismatch'
 
         total_gt = 0
