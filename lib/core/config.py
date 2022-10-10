@@ -135,6 +135,9 @@ config.TRAIN.RESUME = False
 config.TRAIN.BATCH_SIZE = 8
 config.TRAIN.SHUFFLE = True
 
+config.TRAIN.RETRAIN_BACKBONE = False
+config.TRAIN.TRAIN_BACKBONE_lr_ratio = 1
+
 # testing
 config.TEST = edict()
 config.TEST.BATCH_SIZE = 8
