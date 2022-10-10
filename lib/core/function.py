@@ -164,7 +164,7 @@ def validate_3d(config, model, loader, output_dir):
                 save_debug_3d_images(config, meta[0], pred, prefix2)
 
     metric = None
-    if 'panoptic' in config.DATASET.TEST_DATASET or 'mvhw' in config.DATASET.TEST_DATASET:
+    if 'panoptic' in config.DATASET.TEST_DATASET or 'mvhw' in config.DATASET.TEST_DATASET or 'h36m' in config.DATASET.TEST_DATASET:
         aps, _, mpjpe, recall = loader.dataset.evaluate(preds)
         msg = 'ap@25: {aps_25:.4f}\tap@50: {aps_50:.4f}\tap@75: {aps_75:.4f}\t' \
               'ap@100: {aps_100:.4f}\tap@125: {aps_125:.4f}\tap@150: {aps_150:.4f}\t' \
