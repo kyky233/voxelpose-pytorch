@@ -68,7 +68,7 @@ LIMBS = [[0, 1],
 H36M_TO_PANOPTIC = [8, 9, 0, 11, 12, 13, 4, 5, 6, 14, 15, 16, 1, 2, 3]
 
 
-small_batch = 1000  # None or int
+small_batch = 40  # None or int
 
 
 class H36M(JointsDataset):
