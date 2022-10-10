@@ -49,7 +49,7 @@ def get_optimizer(model, retrain_backbone=False, backbone_lr_ratio=None):
         if not retrain_backbone:
             for params in model.module.backbone.parameters():
                 params.requires_grad = False   # If you want to train the whole model jointly, set it to be True.
-        else:   # retrain_backbone=True
+        else:   # retrain_backbone=True , train the whole model jointly
             for params in model.module.backbone.parameters():
                 params.requires_grad = True   # If you want to train the whole model jointly, set it to be True.
 
@@ -58,7 +58,8 @@ def get_optimizer(model, retrain_backbone=False, backbone_lr_ratio=None):
     for params in model.module.pose_net.parameters():
         params.requires_grad = True
 
-    if retrain_backbone is True and backbone_lr_ratio != 1:
+    if retrain_backbone is True and backbone_lr_ratio != 1:  # you want to retrain the backbone with a different lr
+
         raise Exception(f"please finished your code here!")
     else:
         optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.module.parameters()), lr=lr)
