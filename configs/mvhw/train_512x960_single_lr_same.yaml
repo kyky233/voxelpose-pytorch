@@ -28,8 +28,6 @@ DATASET:
 NETWORK:
   PRETRAINED_BACKBONE: "models/pose_resnet50_panoptic.pth.tar"
   PRETRAINED:  ''  # 'models/pytorch/imagenet/resnet50-19c8e357.pth'
-  RETRAIN_BACKBONE: True
-  TRAIN_BACKBONE_lr_ratio: 1
   TARGET_TYPE: gaussian
   IMAGE_SIZE:
   - 512
@@ -63,6 +61,8 @@ TRAIN:
   RESUME: false
   OPTIMIZER: adam
   LR: 0.0001
+  RETRAIN_BACKBONE: True
+  TRAIN_BACKBONE_lr_ratio: 1
 TEST:
   MODEL_FILE: 'model_best.pth.tar'
   BATCH_SIZE: 8
