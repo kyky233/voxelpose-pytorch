@@ -43,16 +43,25 @@ def parse_args():
     return args
 
 
-def get_optimizer(model):
+def get_optimizer(model, retrain_backbone=False, backbone_lr_ratio=None):
     lr = config.TRAIN.LR
     if model.module.backbone is not None:
-        for params in model.module.backbone.parameters():
-            params.requires_grad = True   # If you want to train the whole model jointly, set it to be True.
+        if not retrain_backbone:
+            for params in model.module.backbone.parameters():
+                params.requires_grad = False   # If you want to train the whole model jointly, set it to be True.
+        else:   # retrain_backbone=True
+            for params in model.module.backbone.parameters():
+                params.requires_grad = True   # If you want to train the whole model jointly, set it to be True.
+
     for params in model.module.root_net.parameters():
         params.requires_grad = True
     for params in model.module.pose_net.parameters():
         params.requires_grad = True
-    optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.module.parameters()), lr=lr)
+
+    if retrain_backbone is True and backbone_lr_ratio != 1:
+        raise Exception(f"please finished your code here!")
+    else:
+        optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.module.parameters()), lr=lr)
     # optimizer = optim.Adam(model.module.parameters(), lr=lr)
 
     return model, optimizer
@@ -109,7 +118,10 @@ def main():
     with torch.no_grad():
         model = torch.nn.DataParallel(model, device_ids=gpus).cuda()
 
-    model, optimizer = get_optimizer(model)
+    if config.TRAIN.RETRAIN_BACKBONE is True:
+        model, optimizer = get_optimizer(model, retrain_backbone=True, backbone_lr_ratio=config.TRAIN.TRAIN_BACKBONE_lr_ratio)
+    else:
+        model, optimizer = get_optimizer(model)
 
     start_epoch = config.TRAIN.BEGIN_EPOCH
     end_epoch = config.TRAIN.END_EPOCH
