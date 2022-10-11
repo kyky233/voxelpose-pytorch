@@ -16,8 +16,7 @@ set -x
 #CONFIG=configs/mvhw/train_960x512_single.yaml
 #CONFIG=configs/mvhw/train_512x960_single.yaml
 #CONFIG=configs/mvhw/train_512x960_single_lr_same.yaml
-#CONFIG=configs/mvhw/train_512x960_single_lr_different.yaml
-CONFIG=configs/mvhw/train_512x960_single_lr_same.yaml
+CONFIG=configs/mvhw/train_512x960_single_lr_different.yaml
 
 # PYTHONPATH="$(dirname ./scripts/train_mvhw.sh)/..":$PYTHONPATH \
 which python

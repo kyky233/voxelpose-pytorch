@@ -13,7 +13,7 @@ PRINT_FREQ: 100
 
 DATASET:
   COLOR_RGB: True
-  TRAIN_DATASET: 'panoptic'
+  TRAIN_DATASET: 'mvhw'
   TEST_DATASET: 'mvhw'
   DATA_FORMAT: jpg
   DATA_AUGMENTATION: False
@@ -61,6 +61,8 @@ TRAIN:
   RESUME: true
   OPTIMIZER: adam
   LR: 0.0001
+  RETRAIN_BACKBONE: True
+  TRAIN_BACKBONE_lr_ratio: 1
 TEST:
   MODEL_FILE: 'model_best.pth.tar'
   BATCH_SIZE: 8
