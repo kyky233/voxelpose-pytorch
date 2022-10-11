@@ -69,7 +69,7 @@ def get_optimizer(model, retrain_backbone=False, backbone_lr_ratio=None):
             {'params': [p for n, p in params if not is_backbone(n)], 'lr': lr}
         ]
         optimizer = optim.Adam(grouped_params, lr=lr)
-        raise Exception(f"please finished your code here!")
+        # raise Exception(f"please finished your code here!")
     else:
         optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.module.parameters()), lr=lr)
     # optimizer = optim.Adam(model.module.parameters(), lr=lr)
