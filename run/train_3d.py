@@ -43,6 +43,10 @@ def parse_args():
     return args
 
 
+def is_backbone(n):
+    return 'backbone' in n
+
+
 def get_optimizer(model, retrain_backbone=False, backbone_lr_ratio=None):
     lr = config.TRAIN.LR
     if model.module.backbone is not None:
@@ -59,7 +63,12 @@ def get_optimizer(model, retrain_backbone=False, backbone_lr_ratio=None):
         params.requires_grad = True
 
     if retrain_backbone is True and backbone_lr_ratio != 1:  # you want to retrain the backbone with a different lr
-
+        params = list(model.named_parameters())
+        grouped_params = [
+            {'params': [p for n, p in params if is_backbone(n)], 'lr': lr*backbone_lr_ratio},
+            {'params': [p for n, p in params if not is_backbone(n)], 'lr': lr}
+        ]
+        optimizer = optim.Adam(grouped_params, lr=lr)
         raise Exception(f"please finished your code here!")
     else:
         optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.module.parameters()), lr=lr)
