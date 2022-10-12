@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH -J VOXELPOSE_PAN_VAL
+#SBATCH -J VOXELPOSE_h36m_VAL
 #SBATCH -p p-V100
 #SBATCH -N 1
 #SBATCH --ntasks-per-node=1
