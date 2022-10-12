@@ -153,6 +153,9 @@ class HigherHRNet(nn.Module):
     def __init__(self, c=48, nof_joints=17, bn_momentum=0.1):
         super(HigherHRNet, self).__init__()
 
+        # init
+        self.nof_joints = nof_joints
+
         # Input (stem net)
         self.conv1 = nn.Conv2d(3, 64, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
         self.bn1 = nn.BatchNorm2d(64, eps=1e-05, momentum=bn_momentum, affine=True, track_running_stats=True)
@@ -317,7 +320,67 @@ class HigherHRNet(nn.Module):
             y = self.final_layers[i + 1](x)
             final_outputs.append(y)
 
-        return final_outputs
+        # return final_outputs
+        return self._collect_outputs(outputs=final_outputs)
+
+    # derived from https://github.com/HRNet/HigherHRNet-Human-Pose-Estimation
+    def _collect_outputs(self, outputs, project2image=False, size_projected=None, nof_joints=17):
+        nof_joints = self.nof_joints
+
+        heatmaps_avg = 0
+        num_heatmaps = 0
+        heatmaps = []
+        tags = []
+
+        # inference
+        # outputs is a list with (default) shape
+        #   [(batch, nof_joints*2, height//4, width//4), (batch, nof_joints, height//2, width//2)]
+        # but it could also be (no checkpoints with this configuration)
+        #   [(batch, nof_joints*2, height//4, width//4), (batch, nof_joints*2, height//2, width//2), (batch, nof_joints, height, width)]
+
+        # get higher output resolution
+        higher_resolution = (outputs[-1].shape[-2], outputs[-1].shape[-1])
+
+        for i, output in enumerate(outputs):
+            if i != len(outputs) - 1:
+                output = torch.nn.functional.interpolate(
+                    output,
+                    size=higher_resolution,
+                    mode='bilinear',
+                    align_corners=False
+                )
+
+            heatmaps_avg += output[:, :nof_joints]
+            num_heatmaps += 1
+
+            if output.shape[1] > nof_joints:
+                tags.append(output[:, nof_joints:])
+
+        if num_heatmaps > 0:
+            heatmaps.append(heatmaps_avg / num_heatmaps)
+
+        if project2image and size_projected:
+            heatmaps = [
+                torch.nn.functional.interpolate(
+                    hms,
+                    size=(size_projected[1], size_projected[0]),
+                    mode='bilinear',
+                    align_corners=False
+                )
+                for hms in heatmaps
+            ]
+
+            tags = [
+                torch.nn.functional.interpolate(
+                    tms,
+                    size=(size_projected[1], size_projected[0]),
+                    mode='bilinear',
+                    align_corners=False
+                )
+                for tms in tags
+            ]
+
+        return outputs, heatmaps, tags
 
 
 def get_pose_net(cfg, is_train, **kwargs):
