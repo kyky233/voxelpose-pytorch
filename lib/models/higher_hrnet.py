@@ -278,6 +278,7 @@ class HigherHRNet(nn.Module):
         self.deconv_layers = nn.ModuleList(self.deconv_layers)
 
     def forward(self, x):
+        print(f"shape of input x= {x.shape}")
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
