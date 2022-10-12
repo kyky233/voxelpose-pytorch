@@ -41,8 +41,6 @@ class MultiPersonPoseNet(nn.Module):
         else:
             all_heatmaps = input_heatmaps
 
-        import pdb
-        pdb.set_trace()
         # all_heatmaps = targets_2d
         device = all_heatmaps[0].device
         batch_size = all_heatmaps[0].shape[0]
