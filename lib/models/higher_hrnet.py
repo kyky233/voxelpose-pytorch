@@ -324,7 +324,10 @@ def get_pose_net(cfg, is_train, **kwargs):
     model = HigherHRNet(c=32, nof_joints=17, bn_momentum=0.1)
 
     # load weight
-    model.load_state_dict(torch.load(cfg.NETWORK.PRETRAINED_BACKBONE)['state_dict'])
+
+    model.load_state_dict(
+        torch.load(cfg.NETWORK.PRETRAINED_BACKBONE)
+    )
 
     return model
 
