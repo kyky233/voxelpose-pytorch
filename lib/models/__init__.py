@@ -13,4 +13,5 @@ import models.project_layer
 import models.cuboid_proposal_net
 import models.pose_regression_net
 import models.multi_person_posenet
+import models.higher_hrnet
 
