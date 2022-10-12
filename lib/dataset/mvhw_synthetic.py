@@ -19,8 +19,8 @@ import cv2
 
 from dataset.JointsDataset import JointsDataset
 from utils.transforms import projectPoints
-# from utils import cameras as util_cams
-from utils import cameras_cpu as util_cams
+from utils import cameras as util_cams
+
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +62,7 @@ else:
 idx_begin = 1     # 1
 multiply_M = False
 use_gt_pose = True
-use_own_format = True
+use_own_format = False
 
 if use_own_format:
     JOINTS_DEF = {
@@ -83,6 +83,8 @@ if use_own_format:
         'r-knee': 14,
         'l-ankle': 15,
         'r-ankle': 16,
+        # 'neck': 17,
+        # 'mid-hip': 18,
     }
 
     LIMBS = [[0, 1],
@@ -122,10 +124,6 @@ else:
         'r-hip': 12,
         'r-knee': 13,
         'r-ankle': 14,
-        # 'l-eye': 15,
-        # 'l-ear': 16,
-        # 'r-eye': 17,
-        # 'r-ear': 18,
     }
 
     LIMBS = [[0, 1],
@@ -144,14 +142,14 @@ else:
              [13, 14]]
 
 
-# MVHW_TO_PANOPTIC = [8, 9, 0, 11, 12, 13, 4, 5, 6, 14, 15, 16, 1, 2, 3]
+MVHW_TO_PANOPTIC = [17, 0, 18, 5, 7, 9, 11, 13, 15, 6, 8, 10, 12, 14, 16]
 
 M = np.array([[1.0, 0.0, 0.0],
               [0.0, 0.0, -1.0],
               [0.0, 1.0, 0.0]])
 
 
-class MVHW(JointsDataset):
+class MvhwSynthetic(JointsDataset):
     def __init__(self, cfg, image_set, is_train, transform=None):
         super().__init__(cfg, image_set, is_train, transform)
         self.pixel_std = 200.0
@@ -224,7 +222,8 @@ class MVHW(JointsDataset):
             kpts_path = os.path.join(kpts_dir, kpts_file_name)
             kpts = np.load(kpts_path, allow_pickle=True)[
                 0]  # dict, dict_keys(['name', 'nframes', 'keypoints3d', 'keypoints3d_optim'])
-            kpts_3d = kpts['keypoints3d_optim'][:, :self.num_joints, :]  # numpy array, [n_frames, n_joints, 3]
+            # kpts_3d = kpts['keypoints3d_optim'][:, :self.num_joints, :]  # numpy array, [n_frames, n_joints, 3]
+            kpts_3d = kpts['keypoints3d_optim'] # numpy array, [n_frames, n_joints, 3]
             assert seq_len == kpts['nframes']
 
             for idx in range(seq_len):
@@ -243,11 +242,19 @@ class MVHW(JointsDataset):
                         # real pose
                         if use_gt_pose:
                             pose3d = kpts_3d[idx]
-                            joints_vis = np.array([True for i in range(pose3d.shape[0])])
+                            # joints_vis = np.array([True for i in range(pose3d.shape[0])])
+                            joints_vis = np.array([True for i in range(self.num_joints)])
                             if not joints_vis[self.root_id]:
                                 continue
                             if multiply_M:  # Coordinate transformation
                                 pose3d[:, 0:3] = pose3d[:, 0:3].dot(M)
+                            # calculate 'neck':0, and mid-hip:2
+                            pose3d_neck = ((pose3d[5]+pose3d[6])/2.0).reshape(1, 3)
+                            pose3d_hip = ((pose3d[11]+pose3d[12])/2.0).reshape(1, 3)
+                            # recollect pose3d with new joints and order
+                            pose3d = np.concatenate((pose3d, pose3d_neck, pose3d_hip), axis=0)
+                            pose3d = pose3d[MVHW_TO_PANOPTIC]
+
                             all_poses_3d.append(pose3d[:, 0:3] * 10.0)
                             all_poses_vis_3d.append(np.repeat(np.reshape(joints_vis, (-1, 1)), 3, axis=1))
 
@@ -277,7 +284,7 @@ class MVHW(JointsDataset):
                         # if multiply_M:
                         #     pose3d = pose3d.dot(M)
                         #     R, T, f, c, k, p = util_cams.unfold_camera_param(camera=our_cam)
-                        #     pose2d = util_cams.project_point_radial(x=pose3d, R=R, T=T, f=f, c=c, k=k, p=p)
+                        #     pose2d = util_cams.project_point_radial(x_world=pose3d, R=R, T=T, f=f, c=c, k=k, p=p)
 
                         # get image
                         img_path = osp.join(img_dir, k, self._get_img_name(idx))
@@ -441,7 +448,4 @@ class MVHW(JointsDataset):
         gt_ids = [e["gt_id"] for e in eval_list if e["mpjpe"] < threshold]
 
         return len(np.unique(gt_ids)) / total_gt
-
-
-
 

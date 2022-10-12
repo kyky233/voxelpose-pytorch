@@ -72,7 +72,7 @@ def main():
         pin_memory=True)
 
     ''' ---------------- Visualization ----------------'''
-    output_dir = '../vis_results'
+    output_dir = './vis_results'
     for i, (inputs, targets_2d, weights_2d, targets_3d, meta, input_heatmap) in enumerate(tqdm(test_loader)):
 
         for k in range(len(inputs)):

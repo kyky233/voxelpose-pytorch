@@ -14,3 +14,4 @@ from dataset.shelf import Shelf as shelf
 from dataset.campus import Campus as campus
 from dataset.mvhw import MVHW as mvhw
 from dataset.h36m import H36M as h36m
+from dataset.mvhw_synthetic import MvhwSynthetic as mvhw_synthetic
