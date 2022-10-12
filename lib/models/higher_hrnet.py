@@ -321,12 +321,7 @@ class HigherHRNet(nn.Module):
             final_outputs.append(y)
 
         # return final_outputs
-        final_outputs = self._collect_outputs(outputs=final_outputs)
-        # all_heatmaps = []
-        # for i in range(len(final_outputs)):
-        #     all_heatmaps.append(final_outputs[i][2][0])
-        # return all_heatmaps
-        return final_outputs
+        return self._collect_outputs(outputs=final_outputs)[2][0]
 
     # derived from https://github.com/HRNet/HigherHRNet-Human-Pose-Estimation
     # def _collect_outputs(self, outputs, project2image=False, size_projected=None, nof_joints=17):
