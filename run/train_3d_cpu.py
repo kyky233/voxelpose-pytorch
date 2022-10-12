@@ -125,10 +125,6 @@ def main():
     model = eval('models.' + config.MODEL + '.get_multi_person_pose_net')(
         config, is_train=True)
 
-    with torch.no_grad():
-        if gpus[0] != -1:
-            model = torch.nn.DataParallel(model, device_ids=gpus).cuda()
-
     if config.TRAIN.RETRAIN_BACKBONE is True:
         model, optimizer = get_optimizer(model, retrain_backbone=True, backbone_lr_ratio=config.TRAIN.TRAIN_BACKBONE_lr_ratio)
     else:
