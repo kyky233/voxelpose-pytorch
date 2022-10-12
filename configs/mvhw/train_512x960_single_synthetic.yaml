@@ -61,6 +61,7 @@ TRAIN:
   RESUME: false
   OPTIMIZER: adam
   LR: 0.0001
+  RETRAIN_BACKBONE: False
 TEST:
   MODEL_FILE: 'model_best.pth.tar'
   BATCH_SIZE: 8
