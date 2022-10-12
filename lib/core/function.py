@@ -29,6 +29,7 @@ def train_3d(config, model, optimizer, loader, epoch, output_dir, writer_dict, d
 
     if model.module.backbone is not None:
         model.module.backbone.eval()  # Comment out this line if you want to train 2D backbone jointly
+        # pass
 
     accumulation_steps = 4
     accu_loss_3d = 0
