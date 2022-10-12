@@ -11,6 +11,7 @@ import torch
 import torch.nn as nn
 
 from models import pose_resnet
+from models import higher_hrnet
 from models.cuboid_proposal_net import CuboidProposalNet
 from models.pose_regression_net import PoseRegressionNet
 from core.loss import PerJointMSELoss
@@ -98,8 +99,8 @@ class MultiPersonPoseNet(nn.Module):
 
 
 def get_multi_person_pose_net(cfg, is_train=True):
-    import pdb
-    pdb.set_trace()
+    # import pdb
+    # pdb.set_trace()
     if cfg.BACKBONE_MODEL:
         backbone = eval(cfg.BACKBONE_MODEL + '.get_pose_net')(cfg, is_train=is_train)
     else:
