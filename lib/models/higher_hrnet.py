@@ -1,3 +1,7 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import torch
 from torch import nn
 # from models.modules import BasicBlock, Bottleneck
