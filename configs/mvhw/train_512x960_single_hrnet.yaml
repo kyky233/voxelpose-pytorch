@@ -27,7 +27,7 @@ DATASET:
   CAMERA_NUM: 5
 NETWORK:
   PRETRAINED_BACKBONE: "models/pretrained2d/pose_higher_hrnet_w32_640.pth.tar"
-  PRETRAINED:  'models/pytorch/imagenet/resnet50-19c8e357.pth'  # 'models/pytorch/imagenet/resnet50-19c8e357.pth'
+  PRETRAINED:  ''  # 'models/pytorch/imagenet/resnet50-19c8e357.pth'
   TARGET_TYPE: gaussian
   IMAGE_SIZE:
   - 512

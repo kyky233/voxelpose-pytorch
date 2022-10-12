@@ -2,6 +2,10 @@ import torch
 from torch import nn
 # from models.modules import BasicBlock, Bottleneck
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class Bottleneck(nn.Module):
     expansion = 4
