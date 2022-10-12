@@ -98,6 +98,8 @@ class MultiPersonPoseNet(nn.Module):
 
 
 def get_multi_person_pose_net(cfg, is_train=True):
+    import pdb
+    pdb.set_trace()
     if cfg.BACKBONE_MODEL:
         backbone = eval(cfg.BACKBONE_MODEL + '.get_pose_net')(cfg, is_train=is_train)
     else:
