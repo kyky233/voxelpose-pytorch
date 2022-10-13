@@ -27,7 +27,7 @@ from core.config import update_config
 from core.function import train_3d, validate_3d
 from utils.utils import create_logger
 from utils.utils import save_checkpoint, load_checkpoint, load_model_state
-from utils.utils import load_backbone_panoptic
+from utils.utils import load_backbone_panoptic, load_backbone_coco
 import dataset
 import models
 
@@ -138,7 +138,12 @@ def main():
 
     best_precision = 0
     if config.NETWORK.PRETRAINED_BACKBONE:
-        model = load_backbone_panoptic(model, config.NETWORK.PRETRAINED_BACKBONE)
+        if 'pose_resnet50_panoptic.pth.tar' in config.NETWORK.PRETRAINED_BACKBONE:
+            model = load_backbone_panoptic(model, config.NETWORK.PRETRAINED_BACKBONE)
+        elif 'petr_r50_16x2_100e_coco.pth' in config.NETWORK.PRETRAINED_BACKBONE:
+            model = load_backbone_coco(model, config.NETWORK.PRETRAINED_BACKBONE)
+        else:
+            raise Exception(f"config.NETWORK.PRETRAINED_BACKBONE {config.NETWORK.PRETRAINED_BACKBONE} not defined...")
     if config.TRAIN.RESUME:
         start_epoch, model, optimizer, best_precision = load_checkpoint(model, optimizer, final_output_dir)
 

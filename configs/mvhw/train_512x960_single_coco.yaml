@@ -27,7 +27,7 @@ DATASET:
   CAMERA_NUM: 5
 NETWORK:
   PRETRAINED_BACKBONE: "models/petr_r50_16x2_100e_coco.pth"
-  PRETRAINED:  ''  # 'models/pytorch/imagenet/resnet50-19c8e357.pth'
+  PRETRAINED:  'models/pytorch/imagenet/resnet50-19c8e357.pth'  # 'models/pytorch/imagenet/resnet50-19c8e357.pth'
   TARGET_TYPE: gaussian
   IMAGE_SIZE:
   - 512
@@ -61,6 +61,8 @@ TRAIN:
   RESUME: false
   OPTIMIZER: adam
   LR: 0.0001
+  RETRAIN_BACKBONE: True
+  TRAIN_BACKBONE_lr_ratio: 1
 TEST:
   MODEL_FILE: 'model_best.pth.tar'
   BATCH_SIZE: 8

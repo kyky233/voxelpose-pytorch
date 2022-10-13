@@ -147,6 +147,42 @@ def load_backbone_panoptic(model, pretrained_file):
     return model
 
 
+def load_backbone_coco(model, pretrained_file):
+    this_dir = os.path.dirname(__file__)
+    pretrained_file = os.path.abspath(os.path.join(this_dir, '../..', pretrained_file))
+    pretrained_state_dict = torch.load(pretrained_file)
+    model_state_dict = model.module.backbone.state_dict()
+
+    import pdb
+    pdb.set_trace()
+    prefix = "module."
+    new_pretrained_state_dict = {}
+    for k, v in pretrained_state_dict.items():
+        if k.replace(prefix, "") in model_state_dict and v.shape == model_state_dict[k.replace(prefix, "")].shape:
+            new_pretrained_state_dict[k.replace(prefix, "")] = v
+        elif k.replace(prefix, "") == "final_layer.weight":  # TODO
+            print("Reiniting final layer filters:", k)
+
+            o = torch.zeros_like(model_state_dict[k.replace(prefix, "")][:, :, :, :])
+            nn.init.xavier_uniform_(o)
+            n_filters = min(o.shape[0], v.shape[0])
+            o[:n_filters, :, :, :] = v[:n_filters, :, :, :]
+
+            new_pretrained_state_dict[k.replace(prefix, "")] = o
+        elif k.replace(prefix, "") == "final_layer.bias":
+            print("Reiniting final layer biases:", k)
+            o = torch.zeros_like(model_state_dict[k.replace(prefix, "")][:])
+            nn.init.zeros_(o)
+            n_filters = min(o.shape[0], v.shape[0])
+            o[:n_filters] = v[:n_filters]
+
+            new_pretrained_state_dict[k.replace(prefix, "")] = o
+    logging.info("load backbone statedict from {}".format(pretrained_file))
+    model.module.backbone.load_state_dict(new_pretrained_state_dict)
+
+    return model
+
+
 def invert_normalized_tensor(in_tensor, mean, std):
     """ do un-normalize to the tensor which is already normalized with input mean and std
     Params:
