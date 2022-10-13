@@ -206,6 +206,8 @@ class PoseResNet(nn.Module):
         this_dir = os.path.dirname(__file__)
         pretrained = os.path.join(this_dir, '../..', pretrained)
         if os.path.isfile(pretrained):
+            import pdb
+            pdb.set_trace()
             pretrained_state_dict = torch.load(pretrained)
             logger.info('=> loading pretrained models {}'.format(pretrained))
 
