@@ -277,8 +277,7 @@ class HigherHRNet(nn.Module):
 
         self.deconv_layers = nn.ModuleList(self.deconv_layers)
 
-    def forward(self, x):
-        print(f"shape of input x= {x.shape}")
+    def forward(self, x):   # x---torch.Size([8, 3, 960, 512])
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
@@ -329,7 +328,7 @@ class HigherHRNet(nn.Module):
     def _collect_outputs(self, outputs, project2image=True, size_projected=None, nof_joints=17):
 
         nof_joints = self.nof_joints
-        size_projected = [outputs[-2].shape[-2], outputs[-2].shape[-1]]
+        size_projected = [outputs[-2].shape[-2], outputs[-2].shape[-1]]  # [height, width]
 
         heatmaps_avg = 0
         num_heatmaps = 0
@@ -367,7 +366,7 @@ class HigherHRNet(nn.Module):
             heatmaps = [
                 torch.nn.functional.interpolate(
                     hms,
-                    size=(size_projected[1], size_projected[0]),
+                    size=(size_projected[0], size_projected[1]),
                     mode='bilinear',
                     align_corners=False
                 )
@@ -377,7 +376,7 @@ class HigherHRNet(nn.Module):
             tags = [
                 torch.nn.functional.interpolate(
                     tms,
-                    size=(size_projected[1], size_projected[0]),
+                    size=(size_projected[0], size_projected[1]),
                     mode='bilinear',
                     align_corners=False
                 )
