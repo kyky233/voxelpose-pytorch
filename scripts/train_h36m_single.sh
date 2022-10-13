@@ -13,13 +13,9 @@
 
 # export MASTER_PORT=$((12000 + $RANDOM % 2000))
 set -x
-<<<<<<< HEAD
 # CONFIG=configs/h36m/train_h36m.yaml
-CONFIG=configs/h36m/train_h36m_bs32.yaml
-=======
-#CONFIG=configs/h36m/train_h36m.yaml
+#CONFIG=configs/h36m/train_h36m_bs32.yaml
 CONFIG=configs/h36m/train_h36m_gt_true.yaml
->>>>>>> a3cb5372d1672da457e57faa4ce1401291922e74
 
 # PYTHONPATH="$(dirname ./scripts/train_h36m_single.sh)/..":$PYTHONPATH \
 which python
