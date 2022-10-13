@@ -173,25 +173,25 @@ class MVHW(JointsDataset):
             self.cam_list = ['c0{}'.format(i) for i in range(1, 9, 1)][:self.num_views]   # [0, 1, 2, 3, 4, 5, 6, 7]
             self.num_views = len(self.cam_list)
 
-        #self.db_file = 'group_{}_cam{}.pkl'.format(self.image_set, self.num_views)
-        #self.db_file = os.path.join(self.dataset_root, self.db_file)
+        self.db_file = 'group_{}_cam{}.pkl'.format(self.image_set, self.num_views)
+        self.db_file = os.path.join(self.dataset_root, self.db_file)
 
-        # if osp.exists(self.db_file):
-        #     info = pickle.load(open(self.db_file, 'rb'))
-        #     assert info['sequence_list'] == self.sequence_list
-        #     assert info['interval'] == self._interval
-        #     assert info['cam_list'] == self.cam_list
-        #     self.db = info['db']
-        # else:
-        #     self.db = self._get_db()
-        #     info = {
-        #         'sequence_list': self.sequence_list,
-        #         'interval': self._interval,
-        #         'cam_list': self.cam_list,
-        #         'db': self.db
-        #     }
-        #     pickle.dump(info, open(self.db_file, 'wb'))
-        self.db = self._get_db()
+        if osp.exists(self.db_file):
+            info = pickle.load(open(self.db_file, 'rb'))
+            assert info['sequence_list'] == self.sequence_list
+            assert info['interval'] == self._interval
+            assert info['cam_list'] == self.cam_list
+            self.db = info['db']
+        else:
+            self.db = self._get_db()
+            info = {
+                'sequence_list': self.sequence_list,
+                'interval': self._interval,
+                'cam_list': self.cam_list,
+                'db': self.db
+            }
+            pickle.dump(info, open(self.db_file, 'wb'))
+        # self.db = self._get_db()
         self.db_size = len(self.db)
 
     @staticmethod
