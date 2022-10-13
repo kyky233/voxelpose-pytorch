@@ -28,7 +28,7 @@ def train_3d(config, model, optimizer, loader, epoch, output_dir, writer_dict, d
     model.train()
 
     if model.module.backbone is not None:
-        if config.TRAIN.RETRAIN_BACKBONE is True:
+        if config.TRAIN.RETRAIN_BACKBONE is False:  # do not retrain backbone
             model.module.backbone.eval()  # Comment out this line if you want to train 2D backbone jointly
         else:
             pass
