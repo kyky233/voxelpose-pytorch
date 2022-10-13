@@ -137,7 +137,7 @@ def main():
     end_epoch = config.TRAIN.END_EPOCH
 
     best_precision = 0
-    if config.NETWORK.PRETRAINED_BACKBONE:
+    if config.NETWORK.PRETRAINED_BACKBONE != '':
         if 'pose_resnet50_panoptic.pth.tar' in config.NETWORK.PRETRAINED_BACKBONE:
             model = load_backbone_panoptic(model, config.NETWORK.PRETRAINED_BACKBONE)
         elif 'petr_r50_16x2_100e_coco.pth' in config.NETWORK.PRETRAINED_BACKBONE:
