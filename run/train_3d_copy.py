@@ -49,6 +49,9 @@ def is_backbone(n):
 
 def get_optimizer(model, retrain_backbone=False, backbone_lr_ratio=None):
     lr = config.TRAIN.LR
+    import pdb
+    pdb.set_trace()
+
     if model.module.backbone is not None:
         if not retrain_backbone:
             for params in model.module.backbone.parameters():
