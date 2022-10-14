@@ -58,7 +58,7 @@ TRAIN:
   SHUFFLE: true
   BEGIN_EPOCH: 0
   END_EPOCH: 100
-  RESUME: false
+  RESUME: true
   OPTIMIZER: adam
   LR: 0.0001
   RETRAIN_BACKBONE: False
