@@ -18,8 +18,11 @@ set -x
 #CONFIG=configs/mvhw/train_512x960_single_lr_same.yaml
 #CONFIG=configs/mvhw/train_512x960_single_lr_different.yaml
 #CONFIG=configs/mvhw/train_512x960_single_synthetic.yaml
-CONFIG=configs/mvhw/train_512x960_single_coco.yaml
 #CONFIG=configs/mvhw/train_512x960_single_hrnet.yaml
+#CONFIG=configs/mvhw/train_512x960_single_coco.yaml
+CONFIG=configs/mvhw/train_512x960_single_coco_diff_lr.yaml
+#CONFIG=configs/mvhw/train_512x960_single_use_gt.yaml
+
 
 # PYTHONPATH="$(dirname ./scripts/train_mvhw.sh)/..":$PYTHONPATH \
 which python
