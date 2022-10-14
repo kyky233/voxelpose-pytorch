@@ -47,8 +47,9 @@ def is_backbone_pretrained(n):
     # backbone.conv1.weight, backbone.bn1.weight, backbone.bn1.bias are pretrained
     # backbone.layer1 ~ backbone.layer4 are pretrained
     # backbone.deconv_layers and backbone.final_layer need to be trained
-    if 'backbone' in n and 'deconv_layers' not in n and 'final_layer' not in n:
-        return True
+    if 'backbone' in n:
+        if 'deconv_layers' not in n and 'final_layer' not in n:
+            return True
     else:
         return False
 
