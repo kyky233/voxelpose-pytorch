@@ -44,9 +44,13 @@ def parse_args():
 
 
 def is_backbone_pretrained(n):
+    # backbone.conv1.weight, backbone.bn1.weight, backbone.bn1.bias are pretrained
     # backbone.layer1 ~ backbone.layer4 are pretrained
     # backbone.deconv_layers and backbone.final_layer need to be trained
-    return 'backbone.layer' in n
+    if 'backbone' in n and 'deconv_layers' not in n and 'final_layer' not in n:
+        return True
+    else:
+        return False
 
 
 def get_optimizer(model, retrain_backbone=False, backbone_lr_ratio=None):
