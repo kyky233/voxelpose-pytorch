@@ -76,8 +76,6 @@ def get_optimizer(model, retrain_backbone=False, backbone_lr_ratio=None):
             {'params': [p for n, p in params if is_backbone_pretrained(n)], 'lr': lr*backbone_lr_ratio},
             {'params': [p for n, p in params if not is_backbone_pretrained(n)], 'lr': lr}
         ]
-        import pdb
-        pdb.set_trace()
         optimizer = optim.Adam(grouped_params, lr=lr)
         # raise Exception(f"please finished your code here!")
     else:

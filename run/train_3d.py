@@ -43,12 +43,20 @@ def parse_args():
     return args
 
 
-def is_backbone(n):
-    return 'backbone' in n
+def is_backbone_pretrained(n):
+    # backbone.conv1.weight, backbone.bn1.weight, backbone.bn1.bias are pretrained
+    # backbone.layer1 ~ backbone.layer4 are pretrained
+    # backbone.deconv_layers and backbone.final_layer need to be trained
+    if 'backbone' in n:
+        if 'deconv_layers' not in n and 'final_layer' not in n:
+            return True
+    else:
+        return False
 
 
 def get_optimizer(model, retrain_backbone=False, backbone_lr_ratio=None):
     lr = config.TRAIN.LR
+
     if model.module.backbone is not None:
         if not retrain_backbone:
             for params in model.module.backbone.parameters():
@@ -65,8 +73,8 @@ def get_optimizer(model, retrain_backbone=False, backbone_lr_ratio=None):
     if retrain_backbone is True and backbone_lr_ratio != 1:  # you want to retrain the backbone with a different lr
         params = list(model.named_parameters())
         grouped_params = [
-            {'params': [p for n, p in params if is_backbone(n)], 'lr': lr*backbone_lr_ratio},
-            {'params': [p for n, p in params if not is_backbone(n)], 'lr': lr}
+            {'params': [p for n, p in params if is_backbone_pretrained(n)], 'lr': lr*backbone_lr_ratio},
+            {'params': [p for n, p in params if not is_backbone_pretrained(n)], 'lr': lr}
         ]
         optimizer = optim.Adam(grouped_params, lr=lr)
         # raise Exception(f"please finished your code here!")
@@ -75,7 +83,6 @@ def get_optimizer(model, retrain_backbone=False, backbone_lr_ratio=None):
     # optimizer = optim.Adam(model.module.parameters(), lr=lr)
 
     return model, optimizer
-
 
 def main():
     args = parse_args()
