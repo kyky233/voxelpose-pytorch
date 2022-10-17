@@ -43,36 +43,20 @@ def parse_args():
     return args
 
 
-def is_backbone(n):
-    return 'backbone' in n
+def is_pretrained(n):
+    return 'deconv_layers' not in n and 'final_layer' not in n
 
 
-def get_optimizer(model, retrain_backbone=False, backbone_lr_ratio=None):
+def get_optimizer(model):
     lr = config.TRAIN.LR
     if model.module.backbone is not None:
-        if not retrain_backbone:
-            for params in model.module.backbone.parameters():
-                params.requires_grad = False   # If you want to train the whole model jointly, set it to be True.
+        for params in model.module.backbone.parameters():
+            params.requires_grad = False   # If you want to train the whole model jointly, set it to be True.
         else:   # retrain_backbone=True , train the whole model jointly
             for params in model.module.backbone.parameters():
                 params.requires_grad = True   # If you want to train the whole model jointly, set it to be True.
 
-    for params in model.module.root_net.parameters():
-        params.requires_grad = True
-    for params in model.module.pose_net.parameters():
-        params.requires_grad = True
-
-    if retrain_backbone is True and backbone_lr_ratio != 1:  # you want to retrain the backbone with a different lr
-        params = list(model.named_parameters())
-        grouped_params = [
-            {'params': [p for n, p in params if is_backbone(n)], 'lr': lr*backbone_lr_ratio},
-            {'params': [p for n, p in params if not is_backbone(n)], 'lr': lr}
-        ]
-        optimizer = optim.Adam(grouped_params, lr=lr)
-        # raise Exception(f"please finished your code here!")
-    else:
-        optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.module.parameters()), lr=lr)
-    # optimizer = optim.Adam(model.module.parameters(), lr=lr)
+    optimizer = optim.Adam(model.module.parameters(), lr=lr)
 
     return model, optimizer
 
@@ -128,22 +112,19 @@ def main():
     with torch.no_grad():
         model = torch.nn.DataParallel(model, device_ids=gpus).cuda()
 
-    if config.TRAIN.RETRAIN_BACKBONE is True:
-        model, optimizer = get_optimizer(model, retrain_backbone=True, backbone_lr_ratio=config.TRAIN.TRAIN_BACKBONE_lr_ratio)
-    else:
-        model, optimizer = get_optimizer(model)
+    model, optimizer = get_optimizer(model)
 
     start_epoch = config.TRAIN.BEGIN_EPOCH
     end_epoch = config.TRAIN.END_EPOCH
 
     best_precision = 0
-    if config.NETWORK.PRETRAINED_BACKBONE != '':
-        if 'pose_resnet50_panoptic.pth.tar' in config.NETWORK.PRETRAINED_BACKBONE:
-            model = load_backbone_panoptic(model, config.NETWORK.PRETRAINED_BACKBONE)
-        elif 'petr_r50_16x2_100e_coco.pth' in config.NETWORK.PRETRAINED_BACKBONE:
-            model = load_backbone_coco(model, config.NETWORK.PRETRAINED_BACKBONE)
-        else:
-            raise Exception(f"config.NETWORK.PRETRAINED_BACKBONE {config.NETWORK.PRETRAINED_BACKBONE} not defined...")
+    # if config.NETWORK.PRETRAINED_BACKBONE != '':
+    #     if 'pose_resnet50_panoptic.pth.tar' in config.NETWORK.PRETRAINED_BACKBONE:
+    #         model = load_backbone_panoptic(model, config.NETWORK.PRETRAINED_BACKBONE)
+    #     elif 'petr_r50_16x2_100e_coco.pth' in config.NETWORK.PRETRAINED_BACKBONE:
+    #         model = load_backbone_coco(model, config.NETWORK.PRETRAINED_BACKBONE)
+    #     else:
+    #         raise Exception(f"config.NETWORK.PRETRAINED_BACKBONE {config.NETWORK.PRETRAINED_BACKBONE} not defined...")
     if config.TRAIN.RESUME:
         start_epoch, model, optimizer, best_precision = load_checkpoint(model, optimizer, final_output_dir)
 
