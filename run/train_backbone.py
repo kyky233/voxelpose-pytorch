@@ -109,7 +109,7 @@ def main():
     torch.backends.cudnn.enabled = config.CUDNN.ENABLED
 
     print('=> Constructing models ..')
-    model = eval('models.' + config.MODEL + '.get_multi_person_pose_net')(
+    model = eval('models.' + config.MODEL + '.get_backbone_resnet')(
         config, is_train=True)
     with torch.no_grad():
         model = torch.nn.DataParallel(model, device_ids=gpus).cuda()
