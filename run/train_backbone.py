@@ -49,6 +49,8 @@ def is_pretrained(n):
 
 def get_optimizer(model):
     lr = config.TRAIN.LR
+    import pdb
+    pdb.set_trace()
     if model.module.backbone is not None:
         for params in model.module.backbone.parameters():
             params.requires_grad = False   # If you want to train the whole model jointly, set it to be True.
